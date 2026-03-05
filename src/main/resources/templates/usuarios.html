@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Zentinel - Usuarios</title>
+</head>
+
+<body>
+    <h1>Gestión de Usuarios - Zentinel</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Usuario</th>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Rol</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="u : ${listaUsuarios}">
+                <td th:text="${u.usuario}"></td>
+                <td th:text="${u.nombre}"></td>
+                <td th:text="${u.correo}"></td>
+                <td th:text="${u.rol}"></td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+
+</html>
