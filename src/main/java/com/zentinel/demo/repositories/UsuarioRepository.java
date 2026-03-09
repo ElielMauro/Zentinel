@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, String> {
-    // El "String" es porque el ID de tu tabla Usuario es el campo 'usuario' (texto)
+    // Usamos String como ID porque en el diagrama 'usuario' es VARCHAR(50)
 }
