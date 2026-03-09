@@ -1,165 +1,34 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-    <meta charset="UTF-8">
-    <title>Zentinel | Dashboard</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet-&gt;
-    <style>
-        :root {
-            --bg-color: #0F172A;
-            --surface: #1E293B;
-            --primary: #4F46E5;
-            --text-main: #F8FAFC;
-            --text-muted: #94A3B8;
-        }
-        body {
-            margin: 0;
-            font-family: 'Outfit', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            display: flex;
-        }
-        .sidebar {
-            width: 260px;
-            background: var(--surface);
-            height: 100vh;
-            border-right: 1px solid rgba(255,255,255,0.05);
-            display: flex;
-            flex-direction: column;
-            padding: 2rem 1rem;
-            box-sizing: border-box;
-        }
-        .main-content {
-            flex: 1;
-            padding: 2rem 3rem;
-            box-sizing: border-box;
-        }
-        .logo {
-            font-size: 2rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #818CF8 0%, #C084FC 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 3rem;
-            padding: 0 1rem;
-        }
-        .nav-item {
-            padding: 1rem;
-            border-radius: 10px;
-            color: var(--text-muted);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            transition: all 0.3s ease;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-        }
-        .nav-item:hover, .nav-item.active {
-            background: rgba(79, 70, 229, 0.1);
-            color: var(--primary);
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 3rem;
-        }
-        h1 {
-            margin: 0;
-            font-weight: 600;
-        }
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        .logout-btn {
-            background: rgba(239, 68, 68, 0.1);
-            color: #F87171;
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            padding: 0.5rem 1.5rem;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        .logout-btn:hover {
-            background: rgba(239, 68, 68, 0.2);
-        }
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
-        .card {
-            background: var(--surface);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 16px;
-            padding: 2rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(79, 70, 229, 0.5);
-        }
-        .card h3 {
-            margin-top: 0;
-            color: var(--text-muted);
-            font-size: 1rem;
-        }
-        .card .value {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin: 0;
-        }
-    </style>
-</head>
+
+<head th:replace="~{fragments/head :: head('Zentinel | Dashboard')}"></head>
+
 <body>
 
-    <div class="sidebar">
-        <div class="logo">Zentinel</div>
-        <a href="/" class="nav-item active">Dashboard</a>
-        <a href="/productos" class="nav-item">Productos</a>
-        <a href="/inventario" class="nav-item">Inventario</a>
-        <a href="/entradas" class="nav-item">Entradas</a>
-        <a href="/salidas" class="nav-item">Salidas</a>
-        <th:block sec:authorize="hasRole('ADMIN')">
-            <a href="/usuarios" class="nav-item">Usuarios</a>
-            <a href="/catalogos" class="nav-item">Catálogos</a>
-        </th:block>
-    </div>
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
     <div class="main-content">
-        <div class="header">
-            <div>
-                <h1>Bienvenido, <span sec:authentication="name">Usuario</span></h1>
-                <p style="color: var(--text-muted); margin-top: 5px;">Sistema de Gestión de Almacén</p>
-            </div>
-            <div class="user-info">
-                <span style="color: var(--text-muted)">Rol: <span sec:authentication="principal.authorities"></span></span>
-                <form th:action="@{/logout}" method="post" style="margin: 0;">
-                    <button type="submit" class="logout-btn" style="cursor: pointer;">Cerrar Sesión</button>
-                </form>
-            </div>
-        </div>
+        <div th:replace="~{fragments/topbar :: topbar('Dashboard', 'Sistema de Gestión de Almacén')}"></div>
 
-        <div class="cards-grid">
-            <div class="card">
-                <h3>Total Productos</h3>
-                <p class="value">--</p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+            <div
+                style="background: var(--surface); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 2rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                <h3 style="margin-top: 0; color: var(--text-muted); font-size: 1rem;">Total Productos</h3>
+                <p style="font-size: 2.5rem; font-weight: 700; margin: 0;">--</p>
             </div>
-            <div class="card">
-                <h3>Entradas del Mes</h3>
-                <p class="value">--</p>
+            <div
+                style="background: var(--surface); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 2rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                <h3 style="margin-top: 0; color: var(--text-muted); font-size: 1rem;">Entradas del Mes</h3>
+                <p style="font-size: 2.5rem; font-weight: 700; margin: 0;">--</p>
             </div>
-            <div class="card">
-                <h3>Salidas del Mes</h3>
-                <p class="value">--</p>
+            <div
+                style="background: var(--surface); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 2rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                <h3 style="margin-top: 0; color: var(--text-muted); font-size: 1rem;">Salidas del Mes</h3>
+                <p style="font-size: 2.5rem; font-weight: 700; margin: 0;">--</p>
             </div>
         </div>
     </div>
 
 </body>
+
 </html>

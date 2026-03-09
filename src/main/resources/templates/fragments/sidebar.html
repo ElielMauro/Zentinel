@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<body>
+    <div th:fragment="sidebar" class="sidebar">
+        <div class="logo">Zentinel</div>
+        <a href="/" th:classappend="${#httpServletRequest.requestURI == '/' ? 'active' : ''}"
+            class="nav-item">Dashboard</a>
+        <a href="/productos"
+            th:classappend="${#strings.startsWith(#httpServletRequest.requestURI, '/productos') ? 'active' : ''}"
+            class="nav-item">Productos</a>
+        <a href="/inventario"
+            th:classappend="${#strings.startsWith(#httpServletRequest.requestURI, '/inventario') ? 'active' : ''}"
+            class="nav-item">Inventario</a>
+        <a href="/entradas"
+            th:classappend="${#strings.startsWith(#httpServletRequest.requestURI, '/entradas') ? 'active' : ''}"
+            class="nav-item">Entradas</a>
+        <a href="/salidas"
+            th:classappend="${#strings.startsWith(#httpServletRequest.requestURI, '/salidas') ? 'active' : ''}"
+            class="nav-item">Salidas</a>
+
+        <!-- Renderizar solo si es ADMIN -->
+        <th:block sec:authorize="hasRole('ADMIN')">
+            <a href="/usuarios"
+                th:classappend="${#strings.startsWith(#httpServletRequest.requestURI, '/usuarios') ? 'active' : ''}"
+                class="nav-item">Usuarios</a>
+            <a href="/catalogos"
+                th:classappend="${#strings.startsWith(#httpServletRequest.requestURI, '/catalogos') ? 'active' : ''}"
+                class="nav-item">Catálogos</a>
+        </th:block>
+    </div>
+</body>
+
+</html>

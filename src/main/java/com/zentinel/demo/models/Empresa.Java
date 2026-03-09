@@ -1,4 +1,4 @@
-package com.zentinel.zentinel.models;
+package com.zentinel.demo.models;
 
 import jakarta.persistence.*;
 import lombok.Data;

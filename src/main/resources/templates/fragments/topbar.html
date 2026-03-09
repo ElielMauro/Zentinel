@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<body>
+    <div th:fragment="topbar(title, description)" class="header">
+        <div>
+            <h1 th:text="${title}">Título</h1>
+            <p th:if="${description}" th:text="${description}" style="color: var(--text-muted); margin-top: 5px;"></p>
+        </div>
+        <div class="user-info" style="display: flex; align-items: center; gap: 1rem;">
+            <span style="color: var(--text-muted)">Hola, <span sec:authentication="name"
+                    style="color: white; font-weight: 600;">Usuario</span></span>
+            <form th:action="@{/logout}" method="post" style="margin: 0;">
+                <button type="submit" class="btn btn-danger" style="cursor: pointer; padding: 0.4rem 1rem;">Cerrar
+                    Sesión</button>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

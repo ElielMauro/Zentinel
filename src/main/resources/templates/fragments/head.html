@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <title th:text="${title}">Zentinel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet-&gt;
+    <style>
+        :root {
+            --bg-color: #0F172A;
+            --surface: #1E293B;
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --danger: #EF4444;
+            --danger-bg: rgba(239, 68, 68, 0.1);
+            --danger-border: rgba(239, 68, 68, 0.2);
+            --success: #22C55E;
+            --success-bg: rgba(34, 197, 94, 0.1);
+            --success-border: rgba(34, 197, 94, 0.2);
+        }
+
+        body { 
+            margin: 0; 
+            font-family: 'Outfit', sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-main); 
+            display: flex; 
+        }
+
+        /* Util Classes */
+        .btn { padding: 0.6rem 1.2rem; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: all 0.3s; font-family: inherit; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); }
+        .btn-danger { background: var(--danger-bg); color: #F87171; border: 1px solid var(--danger-border); }
+        .btn-danger:hover { background: rgba(239, 68, 68, 0.2); }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        h1 { margin: 0; font-weight: 600; }
+        
+        /* Sidebar Styling */
+        .sidebar { width: 260px; background: var(--surface); height: 100vh; border-right: 1px solid rgba(255,255,255,0.05); padding: 2rem 1rem; box-sizing: border-box; }
+        .logo { font-size: 2rem; font-weight: 700; background: linear-gradient(135deg, #818CF8 0%, #C084FC 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 3rem; padding: 0 1rem; }
+        .nav-item { padding: 1rem; border-radius: 10px; color: var(--text-muted); text-decoration: none; display: flex; align-items: center; transition: all 0.3s ease; margin-bottom: 0.5rem; font-weight: 600; }
+        .nav-item:hover, .nav-item.active { background: rgba(79, 70, 229, 0.1); color: var(--primary); }
+        
+        /* Main Content Container */
+        .main-content { flex: 1; padding: 2rem 3rem; box-sizing: border-box; height: 100vh; overflow-y: auto;}
+    </style>
+</head>
+<body>
+</body>
+</html>
