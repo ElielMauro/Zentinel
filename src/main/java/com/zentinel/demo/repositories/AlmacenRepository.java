@@ -1,7 +1,4 @@
-public class AlmacenRepository {
-    
-}
-package com.zentinel.demo.repositories;
+package main.java.com.zentinel.demo.repositories;
 
 import com.zentinel.demo.models.Almacen;
 import org.springframework.data.jpa.repository.JpaRepository;
