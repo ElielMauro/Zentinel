@@ -1,21 +1,38 @@
 package com.zentinel.demo.controllers;
 
-import com.zentinel.demo.repositories.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.zentinel.demo.models.Usuario;
+import com.zentinel.demo.services.UsuarioService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
+@RequestMapping("/usuarios")
 public class UsuarioController {
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    private final UsuarioService usuarioService;
 
-    @GetMapping("/usuarios")
+    public UsuarioController(UsuarioService usuarioService) {
+        this.usuarioService = usuarioService;
+    }
+
+    @GetMapping
     public String listarUsuarios(Model model) {
-        // Obtenemos los usuarios de la base de datos y los pasamos a la vista
-        model.addAttribute("listaUsuarios", usuarioRepository.findAll());
-        return "usuarios"; // Nombre del archivo HTML en templates
+        model.addAttribute("usuarios", usuarioService.findAll());
+        model.addAttribute("nuevoUsuario", new Usuario());
+        return "usuarios";
+    }
+
+    @PostMapping("/guardar")
+    public String guardarUsuario(@ModelAttribute Usuario usuario) {
+        usuarioService.save(usuario);
+        return "redirect:/usuarios";
+    }
+
+    @PostMapping("/eliminar")
+    public String eliminarUsuario(@RequestParam String id) {
+        usuarioService.delete(id);
+        return "redirect:/usuarios";
     }
 }
