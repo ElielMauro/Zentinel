@@ -239,6 +239,39 @@
             justify-content: flex-end;
             margin-top: 1rem;
         }
+
+        /* NEW PROFESSIONAL PREMIUM BUTTON */
+        .btn-add {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.7rem 1.4rem;
+            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), 
+                        inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .btn-add:hover {
+            transform: translateY(-1px);
+            background: linear-gradient(135deg, #4338CA 0%, #6D28D9 100%);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3), 
+                        inset 0 1px 1px rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+
+        .btn-add:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
     </style>
 </head>
 

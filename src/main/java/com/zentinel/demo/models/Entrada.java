@@ -11,11 +11,12 @@ import java.util.List;
 @Data
 public class Entrada {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-
     @Column(name = "folio_factura", length = 50, nullable = false)
     private String folioFactura;
+
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(unique = true)
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "proveedor_id")

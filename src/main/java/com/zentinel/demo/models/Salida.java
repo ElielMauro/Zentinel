@@ -25,9 +25,9 @@ public class Salida {
     @JoinColumn(name = "usuario_atendio")
     private Usuario usuarioAtendio;
 
-    @ManyToOne
+    /* @ManyToOne
     @JoinColumn(name = "area_id")
-    private Area area;
+    private Area area; */
 
     @Column(length = 100)
     private String departamento;

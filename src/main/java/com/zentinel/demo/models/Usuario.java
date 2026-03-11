@@ -34,7 +34,7 @@ public class Usuario {
     @Column(length = 100, nullable = false)
     private String correo;
 
-    @Column(length = 30, nullable = false)
+    @Column(length = 20, nullable = false)
     private String rol;
 
     @Column(name = "fecha_alta", updatable = false)
