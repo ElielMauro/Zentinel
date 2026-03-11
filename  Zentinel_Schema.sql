@@ -1,4 +1,3 @@
--- Zentinel - Database Schema provided by User
 -- ==========================================
 -- 1. TABLAS DE CATÁLOGOS Y MAESTRAS (Nivel 1)
 -- ==========================================
@@ -34,8 +33,17 @@ CREATE TABLE IF NOT EXISTS proveedores (
     activo BOOLEAN DEFAULT TRUE
 );
 
--- Note: The existing usuarios table might need adjustment to match exactly
--- But we already have a 'usuarios' table with 'password' from Spring Security setup.
+CREATE TABLE IF NOT EXISTS usuarios (
+    usuario VARCHAR(50) PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL,
+    apellido_paterno VARCHAR(50) NOT NULL,
+    apellido_materno VARCHAR(50),
+    correo VARCHAR(100) NOT NULL,
+    rol VARCHAR(20) NOT NULL,
+    password VARCHAR(255) NOT NULL DEFAULT '', -- Mantener para Spring Security
+    fecha_alta TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    activo BOOLEAN DEFAULT TRUE
+);
 
 -- ==========================================
 -- 2. ESTRUCTURA ORGANIZACIONAL (Nivel 2)
@@ -77,6 +85,13 @@ CREATE TABLE IF NOT EXISTS clientes (
     tipo_cliente_id INTEGER REFERENCES tipos_cliente(id),
     empresa_id INTEGER REFERENCES empresa(id),
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Relación usuario-almacén (Mantenida para la funcionalidad multi-almacén)
+CREATE TABLE IF NOT EXISTS usuario_almacen (
+    usuario VARCHAR(50) REFERENCES usuarios(usuario),
+    almacen_id INTEGER REFERENCES almacenes(id),
+    PRIMARY KEY (usuario, almacen_id)
 );
 
 -- ==========================================
@@ -181,3 +196,4 @@ CREATE TABLE IF NOT EXISTS cancelaciones (
     usuario_cancelacion VARCHAR(50) REFERENCES usuarios(usuario),
     motivo VARCHAR(255) NOT NULL
 );
+
