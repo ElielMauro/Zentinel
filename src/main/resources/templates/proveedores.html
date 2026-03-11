@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:replace="~{fragments/head :: head('Zentinel | Proveedores')}"></head>
+
+<body>
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <div class="main-content">
+        <div
+            th:replace="~{fragments/topbar :: topbar('Directorio de Proveedores', 'Gestión de proveedores del almacén')}">
+        </div>
+
+        <div style="margin-bottom: 2rem; display: flex; justify-content: flex-end;">
+            <a th:href="@{/proveedores/nuevo}" class="btn-primary" style="text-decoration: none;">+ Nuevo Proveedor</a>
+        </div>
+
+        <div class="form-card full-width">
+            <h3>Directorio de Proveedores</h3>
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th>Nombre Corto</th>
+                        <th>Nombre Completo</th>
+                        <th>RFC</th>
+                        <th>Contacto</th>
+                        <th>Teléfono</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="p : ${listaProveedores}">
+                        <td th:text="${p.nombreCorto}"></td>
+                        <td th:text="${p.nombreCompleto}"></td>
+                        <td th:text="${p.rfc}"></td>
+                        <td th:text="${p.contacto}"></td>
+                        <td th:text="${p.telefono}"></td>
+                        <td>
+                            <span th:class="${'badge ' + (p.activo ? 'badge-success' : 'badge-danger')}"
+                                th:text="${p.activo ? 'Activo' : 'Inactivo'}"></span>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(listaProveedores)}">
+                        <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                            No hay proveedores registrados.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>

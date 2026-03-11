@@ -1,10 +1,9 @@
 package com.zentinel.demo.repositories;
-package main.java.com.zentinel.demo.repositories;
 
-import com.zentinel.demo.models.Almacen;
+import com.zentinel.demo.models.SalidaDetalle;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface AlmacenRepository extends JpaRepository<Almacen, Integer> {
+public interface SalidaDetalleRepository extends JpaRepository<SalidaDetalle, Integer> {
 }

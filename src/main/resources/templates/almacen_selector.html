@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Zentinel | Seleccionar Almacén')}"></head>
+
+<body style="display: flex; align-items: center; justify-content: center; height: 100vh; background: var(--bg-color);">
+
+    <div class="form-card" style="width: 100%; max-width: 500px; text-align: center;">
+        <div class="logo" style="margin-bottom: 2rem;">Zentinel</div>
+        <h2 style="margin-bottom: 0.5rem;">Seleccione su Almacén</h2>
+        <p style="color: var(--text-muted); margin-bottom: 2rem;">Elija la sucursal o bodega en la que trabajará hoy.
+        </p>
+
+        <div style="display: grid; gap: 1rem;">
+            <a th:each="a : ${almacenes}" th:href="@{/almacen-selector/seleccionar/{id}(id=${a.id})}" class="nav-item"
+                style="justify-content: center; background: rgba(79, 70, 229, 0.1); border: 1px solid rgba(79, 70, 229, 0.2); padding: 1.5rem;">
+                <div>
+                    <div style="font-weight: 700; font-size: 1.1rem; color: var(--primary);" th:text="${a.nombre}">
+                    </div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted);" th:text="${a.ubicacion}"></div>
+                </div>
+            </a>
+        </div>
+
+        <div style="margin-top: 2rem;">
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn-ghost">Cerrar Sesión</button>
+            </form>
+        </div>
+    </div>
+
+</body>
+
+</html>

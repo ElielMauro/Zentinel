@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:replace="~{fragments/head :: head('Zentinel | Clientes')}"></head>
+
+<body>
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/topbar :: topbar('Cartera de Clientes', 'Gestión de clientes del almacén')}"></div>
+
+        <div style="margin-bottom: 2rem; display: flex; justify-content: flex-end;">
+            <a th:href="@{/clientes/nuevo}" class="btn-primary" style="text-decoration: none;">+ Nuevo Cliente</a>
+        </div>
+
+        <div class="form-card full-width">
+            <h3>Cartera de Clientes</h3>
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th>RFC</th>
+                        <th>Tipo</th>
+                        <th>Teléfono</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="c : ${listaClientes}">
+                        <td th:text="${c.codigo}"></td>
+                        <td th:text="${c.nombre}"></td>
+                        <td th:text="${c.rfc}"></td>
+                        <td th:text="${c.tipoCliente != null ? c.tipoCliente.nombre : 'S/T'}"></td>
+                        <td th:text="${c.telefono}"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(listaClientes)}">
+                        <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                            No hay clientes registrados.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>

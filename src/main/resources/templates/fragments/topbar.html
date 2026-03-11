@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<body>
+    <div th:fragment="topbar(title, description)" class="header">
+        <div>
+            <h1 th:text="${title}">Título</h1>
+            <p th:if="${description}" th:text="${description}" style="color: var(--text-muted); margin-top: 5px;"></p>
+        </div>
+        <div class="user-info" style="display: flex; align-items: center; gap: 1.5rem;">
+            <!-- Indicador de Almacén Activo -->
+            <div th:if="${activeAlmacen}"
+                style="display: flex; align-items: center; gap: 0.5rem; background: rgba(79, 70, 229, 0.1); padding: 0.4rem 0.8rem; border-radius: 8px; border: 1px solid rgba(79, 70, 229, 0.2);">
+                <span style="font-size: 1.2rem;">🏢</span>
+                <div style="line-height: 1.2;">
+                    <div
+                        style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">
+                        Almacén Activo</div>
+                    <div style="font-size: 0.9rem; font-weight: 600; color: var(--primary);"
+                        th:text="${activeAlmacen.nombre}">Almacén Central</div>
+                </div>
+                <a th:href="@{/almacen-selector}"
+                    style="text-decoration: none; font-size: 0.8rem; margin-left: 0.5rem; opacity: 0.7;"
+                    title="Cambiar Almacén">🔄</a>
+            </div>
+
+            <span style="color: var(--text-muted)">Hola, <span sec:authentication="name"
+                    style="color: white; font-weight: 600;">Usuario</span></span>
+            <form th:action="@{/logout}" method="post" style="margin: 0;">
+                <button type="submit" class="btn btn-danger" style="cursor: pointer; padding: 0.4rem 1rem;">Cerrar
+                    Sesión</button>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

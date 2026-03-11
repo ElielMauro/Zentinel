@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <title th:text="${title}">Zentinel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&amp;display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0F172A;
+            --surface: #1E293B;
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --danger: #EF4444;
+            --danger-bg: rgba(239, 68, 68, 0.1);
+            --danger-border: rgba(239, 68, 68, 0.2);
+            --success: #22C55E;
+            --success-bg: rgba(34, 197, 94, 0.1);
+            --success-border: rgba(34, 197, 94, 0.2);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+        }
+
+        /* Util Classes */
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: var(--danger-bg);
+            color: #F87171;
+            border: 1px solid var(--danger-border);
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 260px;
+            background: var(--surface);
+            height: 100vh;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 2rem 1rem;
+            box-sizing: border-box;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #818CF8 0%, #C084FC 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 3rem;
+            padding: 0 1rem;
+        }
+
+        .nav-item {
+            padding: 1rem;
+            border-radius: 10px;
+            color: var(--text-muted);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: rgba(79, 70, 229, 0.1);
+            color: var(--primary);
+        }
+
+        /* Main Content Container */
+        .main-content {
+            flex: 1;
+            padding: 2rem 3rem;
+            box-sizing: border-box;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        /* PREMIUM COMPONENTS */
+        .form-card {
+            background: var(--surface);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.2rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .input-group input,
+        .input-group select,
+        .input-group textarea,
+        textarea {
+            padding: 0.8rem 1rem;
+            border-radius: 10px;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .premium-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 0.5rem;
+        }
+
+        .premium-table th {
+            text-align: left;
+            color: var(--text-muted);
+            font-weight: 600;
+            padding: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .premium-table td {
+            background: rgba(15, 23, 42, 0.3);
+            padding: 1rem;
+            color: var(--text-main);
+        }
+
+        .premium-table tr td:first-child {
+            border-radius: 10px 0 0 10px;
+        }
+
+        .premium-table tr td:last-child {
+            border-radius: 0 10px 10px 0;
+        }
+
+        .badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge-success {
+            background: var(--success-bg);
+            color: var(--success);
+        }
+
+        .badge-danger {
+            background: var(--danger-bg);
+            color: var(--danger);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-muted);
+            border: none;
+            cursor: pointer;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+</body>
+
+</html>

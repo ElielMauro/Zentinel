@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<body>
+    <div th:fragment="sidebar" class="sidebar">
+        <div class="logo">Zentinel</div>
+        <a href="/" th:classappend="${currentUri == '/' ? 'active' : ''}" class="nav-item">Dashboard</a>
+
+        <div
+            style="padding: 1rem 1.5rem 0.5rem; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">
+            Módulos</div>
+        <a href="/productos" th:classappend="${#strings.startsWith(currentUri, '/productos') ? 'active' : ''}"
+            class="nav-item">Productos</a>
+        <a href="/entradas" th:classappend="${#strings.startsWith(currentUri, '/entradas') ? 'active' : ''}"
+            class="nav-item">Entradas</a>
+        <a href="/salidas" th:classappend="${#strings.startsWith(currentUri, '/salidas') ? 'active' : ''}"
+            class="nav-item">Salidas</a>
+        <a href="/proveedores" th:classappend="${#strings.startsWith(currentUri, '/proveedores') ? 'active' : ''}"
+            class="nav-item">Proveedores</a>
+        <a href="/clientes" th:classappend="${#strings.startsWith(currentUri, '/clientes') ? 'active' : ''}"
+            class="nav-item">Clientes</a>
+        <a href="/reportes" th:classappend="${#strings.startsWith(currentUri, '/reportes') ? 'active' : ''}"
+            class="nav-item">Reportes</a>
+
+        <!-- Renderizar solo si es ADMIN -->
+        <th:block sec:authorize="hasRole('ADMIN')">
+            <div
+                style="padding: 1rem 1.5rem 0.5rem; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">
+                Administración</div>
+            <a href="/usuarios" th:classappend="${#strings.startsWith(currentUri, '/usuarios') ? 'active' : ''}"
+                class="nav-item">Usuarios</a>
+            <a href="/almacenes" th:classappend="${#strings.startsWith(currentUri, '/almacenes') ? 'active' : ''}"
+                class="nav-item">Almacenes</a>
+            <a href="/categorias" th:classappend="${#strings.startsWith(currentUri, '/categorias') ? 'active' : ''}"
+                class="nav-item">Categorías</a>
+            <a href="/configuracion"
+                th:classappend="${#strings.startsWith(currentUri, '/configuracion') ? 'active' : ''}"
+                class="nav-item">Configuración</a>
+        </th:block>
+    </div>
+</body>
+
+</html>

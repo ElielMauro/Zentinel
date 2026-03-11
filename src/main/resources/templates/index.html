@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:replace="~{fragments/head :: head('Zentinel | Dashboard')}"></head>
+
+<body>
+
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+    <div class="main-content">
+        <div th:replace="~{fragments/topbar :: topbar('Dashboard', 'Sistema de Gestión de Almacén')}"></div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+            <div
+                style="background: var(--surface); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 2rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                <h3 style="margin-top: 0; color: var(--text-muted); font-size: 1rem;">Total Productos</h3>
+                <p style="font-size: 2.5rem; font-weight: 700; margin: 0;">--</p>
+            </div>
+            <div
+                style="background: var(--surface); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 2rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                <h3 style="margin-top: 0; color: var(--text-muted); font-size: 1rem;">Entradas del Mes</h3>
+                <p style="font-size: 2.5rem; font-weight: 700; margin: 0;">--</p>
+            </div>
+            <div
+                style="background: var(--surface); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 2rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                <h3 style="margin-top: 0; color: var(--text-muted); font-size: 1rem;">Salidas del Mes</h3>
+                <p style="font-size: 2.5rem; font-weight: 700; margin: 0;">--</p>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

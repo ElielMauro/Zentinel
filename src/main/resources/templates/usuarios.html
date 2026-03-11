@@ -2,29 +2,241 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Zentinel - Usuarios</title>
+    <th:block th:replace="~{fragments/head :: head('Zentinel | Usuarios')}"></th:block>
+    <style>
+        .table-container {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        th {
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: var(--success-bg);
+            color: var(--success);
+            border: 1px solid var(--success-border);
+        }
+
+        .status-inactive {
+            background: var(--danger-bg);
+            color: var(--danger);
+            border: 1px solid var(--danger-border);
+        }
+
+        /* Form Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+
+        .modal-content {
+            background: var(--surface);
+            padding: 2rem;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 500px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 8px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+    </style>
 </head>
 
 <body>
-    <h1>Gestión de Usuarios - Zentinel</h1>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Usuario</th>
-                <th>Nombre</th>
-                <th>Correo</th>
-                <th>Rol</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="u : ${listaUsuarios}">
-                <td th:text="${u.usuario}"></td>
-                <td th:text="${u.nombre}"></td>
-                <td th:text="${u.correo}"></td>
-                <td th:text="${u.rol}"></td>
-            </tr>
-        </tbody>
-    </table>
+
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+    <div class="main-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <div th:replace="~{fragments/topbar :: topbar('Gestión de Usuarios', null)}"
+                style="margin-bottom: 0; flex:1;"></div>
+            <button class="btn btn-primary" onclick="document.getElementById('userModal').style.display='flex'">+ Nuevo
+                Usuario</button>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Nombre Completo</th>
+                        <th>Correo</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="user : ${usuarios}">
+                        <td th:text="${user.usuario}">admin</td>
+                        <td th:text="${user.nombre + ' ' + user.apellidoPaterno}">Juan Pérez</td>
+                        <td th:text="${user.correo}">juan@example.com</td>
+                        <td th:text="${user.rol}">ADMIN</td>
+                        <td>
+                            <span
+                                th:class="${user.activo} ? 'status-badge status-active' : 'status-badge status-inactive'"
+                                th:text="${user.activo} ? 'Activo' : 'Inactivo'">Activo</span>
+                        </td>
+                        <td>
+                            <form th:if="${user.activo}" th:action="@{/usuarios/eliminar}" method="post"
+                                style="display:inline;">
+                                <input type="hidden" name="id" th:value="${user.usuario}">
+                                <button type="submit" class="btn btn-danger"
+                                    style="padding: 0.4rem 0.8rem; font-size: 0.85rem;"
+                                    onclick="return confirm('¿Desactivar este usuario?')">Desactivar</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- User Modal -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Nuevo Usuario</h2>
+                <button class="close"
+                    onclick="document.getElementById('userModal').style.display='none'">&times;</button>
+            </div>
+            <form th:action="@{/usuarios/guardar}" method="post" th:object="${nuevoUsuario}">
+                <div class="form-group">
+                    <label>Usuario (ID)</label>
+                    <input type="text" th:field="*{usuario}" required>
+                </div>
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <input type="password" th:field="*{password}" required>
+                </div>
+                <div class="form-group">
+                    <label>Nombre</label>
+                    <input type="text" th:field="*{nombre}" required>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Apellido Paterno</label>
+                        <input type="text" th:field="*{apellidoPaterno}" required>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Apellido Materno</label>
+                        <input type="text" th:field="*{apellidoMaterno}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Correo Electrónico</label>
+                    <input type="email" th:field="*{correo}" required>
+                </div>
+                <div class="form-group">
+                    <label>Rol</label>
+                    <select th:field="*{rol}">
+                        <option value="ADMIN">Administrador</option>
+                        <option value="USER">Usuario (Almacenista)</option>
+                    </select>
+                </div>
+                <div style="text-align: right; margin-top: 1.5rem;">
+                    <button type="button" class="btn"
+                        onclick="document.getElementById('userModal').style.display='none'"
+                        style="background: transparent; color: var(--text-muted); margin-right: 1rem;">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Usuario</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        window.onclick = function (event) {
+            var modal = document.getElementById('userModal');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
 </body>
 
 </html>

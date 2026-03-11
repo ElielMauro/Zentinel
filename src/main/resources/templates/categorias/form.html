@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Zentinel | Nueva Categoría')}"></head>
+
+<body>
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/topbar :: topbar('Nueva Categoría', 'Clasificación de productos')}"></div>
+
+        <div class="content-wrapper">
+            <form th:action="@{/categorias/guardar}" th:object="${categoria}" method="post" class="premium-form">
+                <div class="form-card">
+                    <div class="input-group">
+                        <label>Nombre de la Categoría</label>
+                        <input type="text" th:field="*{nombre}" required
+                            placeholder="Ej. Herramientas, Tornillería, etc.">
+                    </div>
+                    <div class="input-group">
+                        <label>Descripción</label>
+                        <textarea th:field="*{descripcion}" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Guardar Categoría</button>
+                    <a th:href="@{/categorias}" class="btn-ghost">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>
