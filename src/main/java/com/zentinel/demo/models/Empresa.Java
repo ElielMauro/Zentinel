@@ -1,5 +1,5 @@
 package com.zentinel.demo.models;
-package com.zentinel.zentinel.models;
+
 
 import jakarta.persistence.*;
 import lombok.Data;
