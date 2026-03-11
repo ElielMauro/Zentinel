@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head}"></head>
+
+<body>
+    <div class="sidebar" th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <div class="main-content">
+        <div class="topbar" th:replace="~{fragments/topbar :: topbar}"></div>
+
+        <div class="content-wrapper">
+            <div class="header-section">
+                <h1>Registro de Salida de Material</h1>
+                <p>Complete los datos para generar el vale de salida.</p>
+            </div>
+
+            <form th:action="@{/salidas/guardar}" th:object="${salida}" method="post" class="premium-form"
+                id="salidaForm">
+                <div class="form-grid">
+                    <!-- Datos de Control -->
+                    <div class="form-card">
+                        <h3>Información de Control</h3>
+                        <div class="input-group">
+                            <label>Almacén de Origen</label>
+                            <select th:field="*{almacenOrigen}" required>
+                                <option value="">Seleccione Almacén...</option>
+                                <option th:each="almacen : ${almacenes}" th:value="${almacen.id}"
+                                    th:text="${almacen.nombre}"></option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Área Destino</label>
+                            <select th:field="*{area}" required>
+                                <option value="">Seleccione Área...</option>
+                                <option th:each="area : ${areas}" th:value="${area.id}" th:text="${area.nombre}">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Departamento</label>
+                            <input type="text" th:field="*{departamento}" placeholder="Ej. Mantenimiento" required>
+                        </div>
+                    </div>
+
+                    <!-- Datos de Referencia -->
+                    <div class="form-card">
+                        <h3>Referencias</h3>
+                        <div class="input-group">
+                            <label>N° Reporte / Folio</label>
+                            <input type="text" th:field="*{numReporte}" placeholder="Opcional">
+                        </div>
+                        <div class="input-group">
+                            <label>N° Presupuesto</label>
+                            <input type="text" th:field="*{numPresupuesto}" placeholder="Opcional">
+                        </div>
+                        <div class="input-group">
+                            <label>Solicitante (Persona que se lleva el material)</label>
+                            <select th:field="*{usuarioSolicitante}" required>
+                                <option value="">Seleccione Usuario...</option>
+                                <option th:each="u : ${usuarios}" th:value="${u.usuario}"
+                                    th:text="${u.nombre + ' ' + u.apellidoPaterno}"></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-card full-width">
+                    <h3>Descripción / Motivo</h3>
+                    <textarea th:field="*{descripcion}" rows="3"
+                        placeholder="Detalles adicionales de la salida..."></textarea>
+                </div>
+
+                <!-- Detalle de Productos -->
+                <div class="form-card full-width">
+                    <h3>Detalle de Materiales</h3>
+                    <table class="premium-table" id="tablaProductos">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Existencia</th>
+                                <th>Cantidad</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detallesBody">
+                            <tr>
+                                <td>
+                                    <select name="productoId" required class="select-producto"
+                                        onchange="updateStock(this)">
+                                        <option value="">Seleccione...</option>
+                                        <option th:each="p : ${productos}" th:value="${p.sku}"
+                                            th:text="${p.nombre + ' (' + p.sku + ')'}"></option>
+                                    </select>
+                                </td>
+                                <td class="stock-feedback">---</td>
+                                <td><input type="number" name="cantidad" step="0.0001" min="0.0001" required></td>
+                                <td><button type="button" class="btn-icon delete-row">🗑️</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button type="button" class="btn-secondary mt-2" id="addRow">+ Agregar Producto</button>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Registrar Salida e Imprimir</button>
+                    <a th:href="@{/salidas}" class="btn-ghost">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Pre-load inventory data for active warehouse -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const inventoryMap = {};
+        /*[# th:each="inv : ${inventarioActivo}"]*/
+        inventoryMap[[${ inv.producto.sku }]] = [[${ inv.cantidad }]];
+        /*[/]*/
+        /*]]>*/
+
+        function updateStock(selectElement) {
+            const sku = selectElement.value;
+            const row = selectElement.closest('tr');
+            const feedback = row.querySelector('.stock-feedback');
+            if (sku && inventoryMap[sku] !== undefined) {
+                feedback.textContent = inventoryMap[sku];
+                if (inventoryMap[sku] <= 0) {
+                    feedback.style.color = '#EF4444';
+                    feedback.style.fontWeight = 'bold';
+                } else {
+                    feedback.style.color = 'inherit';
+                    feedback.style.fontWeight = 'normal';
+                }
+            } else {
+                feedback.textContent = '0';
+            }
+        }
+
+        document.getElementById('addRow').addEventListener('click', function () {
+            const body = document.getElementById('detallesBody');
+            const firstRow = body.rows[0];
+            const newRow = firstRow.cloneNode(true);
+            newRow.querySelectorAll('input').forEach(i => i.value = '');
+            newRow.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+            newRow.querySelector('.stock-feedback').textContent = '---';
+            body.appendChild(newRow);
+        });
+
+        document.getElementById('detallesBody').addEventListener('click', function (e) {
+            if (e.target.closest('.delete-row')) {
+                const body = document.getElementById('detallesBody');
+                if (body.rows.length > 1) {
+                    e.target.closest('tr').remove();
+                } else {
+                    alert('Debe tener al menos un producto en la lista.');
+                }
+            }
+        });
+
+        document.getElementById('salidaForm').addEventListener('submit', function (e) {
+            const rowCount = document.getElementById('detallesBody').rows.length;
+            const firstSku = document.querySelector('select[name="productoId"]').value;
+
+            if (rowCount === 0 || (rowCount === 1 && !firstSku)) {
+                e.preventDefault();
+                alert('¡ERROR! Debe agregar al menos un objeto al registro antes de continuar.');
+                return;
+            }
+
+            // Validar stock insuficiente
+            let hasError = false;
+            document.querySelectorAll('#detallesBody tr').forEach(row => {
+                const sku = row.querySelector('select').value;
+                const qty = parseFloat(row.querySelector('input[name="cantidad"]').value);
+                const stockAvailable = inventoryMap[sku] || 0;
+                if (qty > stockAvailable) {
+                    hasError = true;
+                }
+            });
+
+            if (hasError) {
+                if (!confirm('Advertencia: Algunos productos superan el stock disponible. ¿Desea continuar de todos modos?')) {
+                    e.preventDefault();
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

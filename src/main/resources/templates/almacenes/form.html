@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Zentinel | Nuevo Almacén')}"></head>
+
+<body>
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/topbar :: topbar('Nuevo Almacén', 'Registro de una nueva sede')}"></div>
+
+        <div class="content-wrapper">
+            <form th:action="@{/almacenes/guardar}" th:object="${almacen}" method="post" class="premium-form">
+                <div class="form-card">
+                    <div class="input-group">
+                        <label>Nombre del Almacén</label>
+                        <input type="text" th:field="*{nombre}" required placeholder="Ej. Almacén Norte">
+                    </div>
+                    <div class="input-group">
+                        <label>Ubicación / Dirección</label>
+                        <input type="text" th:field="*{ubicacion}" required placeholder="Ej. Calle 123, Col. Centro">
+                    </div>
+                    <div class="input-group">
+                        <label>Empresa</label>
+                        <select th:field="*{empresa}" required>
+                            <option th:each="e : ${empresas}" th:value="${e.id}" th:text="${e.nombre}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Guardar Almacén</button>
+                    <a th:href="@{/almacenes}" class="btn-ghost">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

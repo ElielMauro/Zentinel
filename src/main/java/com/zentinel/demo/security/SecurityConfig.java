@@ -23,7 +23,17 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/css/**", "/js/**", "/img/**", "/login").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/img/**", "/login", "/error").permitAll()
+                        // Administración total para ADMIN
+                        .requestMatchers("/usuarios/**", "/almacenes/**", "/configuracion/**").hasRole("ADMIN")
+                        // Catálogos: ADMIN puede crear/editar, MOSTRADOR solo ver
+                        .requestMatchers("/productos/nuevo", "/productos/guardar", "/categorias/**",
+                                "/proveedores/nuevo", "/proveedores/guardar", "/clientes/nuevo", "/clientes/guardar")
+                        .hasRole("ADMIN")
+                        .requestMatchers("/productos/**", "/proveedores/**", "/clientes/**")
+                        .hasAnyRole("ADMIN", "MOSTRADOR")
+                        // Movimientos: Ambos pueden operar
+                        .requestMatchers("/entradas/**", "/salidas/**", "/reportes/**").hasAnyRole("ADMIN", "MOSTRADOR")
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")

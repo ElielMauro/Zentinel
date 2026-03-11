@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Zentinel | Categorías')}"></head>
+
+<body>
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/topbar :: topbar('Categorías de Producto', 'Gestión de tipos de mercancía')}">
+        </div>
+
+        <div style="margin-bottom: 2rem; display: flex; justify-content: flex-end;">
+            <a th:href="@{/categorias/nueva}" class="btn-primary" style="text-decoration: none;">+ Nueva Categoría</a>
+        </div>
+
+        <div class="form-card full-width">
+            <h3>Lista de Categorías</h3>
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="c : ${lista}">
+                        <td th:text="${c.id}"></td>
+                        <td th:text="${c.nombre}"></td>
+                        <td th:text="${c.descripcion}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>

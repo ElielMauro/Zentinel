@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:replace="~{fragments/head :: head('Zentinel | Salidas')}"></head>
+
+<body>
+
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+    <div class="main-content">
+        <div
+            th:replace="~{fragments/topbar :: topbar('Despacho de Salidas', 'Registro de mercancía que sale del almacén')}">
+        </div>
+
+        <div style="margin-bottom: 2rem; display: flex; justify-content: flex-end;">
+            <a th:href="@{/salidas/nueva}" class="btn-primary" style="text-decoration: none;">+ Nueva Salida
+                (Despacho)</a>
+        </div>
+
+        <div class="form-card full-width">
+            <h3>Registro de Salidas Recientes</h3>
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th>Folio</th>
+                        <th>Fecha</th>
+                        <th>Área</th>
+                        <th>Solicitante</th>
+                        <th>Total</th>
+                        <th>Estatus</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="s : ${listaSalidas}">
+                        <td th:text="${s.folio}"></td>
+                        <td th:text="${#temporals.format(s.fecha, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td th:text="${s.area != null ? s.area.nombre : 'N/A'}"></td>
+                        <td th:text="${s.usuarioSolicitante.nombre + ' ' + s.usuarioSolicitante.apellidoPaterno}"></td>
+                        <td th:text="${'$' + s.total}"></td>
+                        <td>
+                            <span th:class="${'badge ' + (s.cancelado ? 'badge-danger' : 'badge-success')}"
+                                th:text="${s.cancelado ? 'Cancelado' : s.estatus}"></span>
+                        </td>
+                        <td>
+                            <a th:href="@{/salidas/reporte/{f}(f=${s.folio})}" class="btn-icon">🖨️</a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(listaSalidas)}">
+                        <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                            No hay salidas registradas.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+
+</html>

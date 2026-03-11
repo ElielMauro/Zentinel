@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Zentinel | Nueva Área')}"></head>
+
+<body>
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/topbar :: topbar('Nueva Área', 'Definición de departamento o ubicación')}"></div>
+
+        <div class="content-wrapper">
+            <form th:action="@{/areas/guardar}" th:object="${area}" method="post" class="premium-form">
+                <div class="form-card">
+                    <div class="input-group">
+                        <label>Nombre del Área</label>
+                        <input type="text" th:field="*{nombre}" required placeholder="Ej. Almacén A, Producción, etc.">
+                    </div>
+                    <div class="input-group">
+                        <label>Descripción</label>
+                        <textarea th:field="*{descripcion}" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Guardar Área</button>
+                    <a th:href="@{/areas}" class="btn-ghost">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

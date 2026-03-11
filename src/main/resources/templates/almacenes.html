@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Zentinel | Almacenes')}"></head>
+
+<body>
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/topbar :: topbar('Gestión de Almacenes', 'Configuración de sedes y bodegas')}">
+        </div>
+
+        <div style="margin-bottom: 2rem; display: flex; justify-content: flex-end;">
+            <a th:href="@{/almacenes/nuevo}" class="btn-primary" style="text-decoration: none;">+ Nuevo Almacén</a>
+        </div>
+
+        <div class="form-card full-width">
+            <h3>Lista de Almacenes</h3>
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Ubicación</th>
+                        <th>Empresa</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="a : ${listaAlmacenes}">
+                        <td th:text="${a.id}"></td>
+                        <td th:text="${a.nombre}"></td>
+                        <td th:text="${a.ubicacion}"></td>
+                        <td th:text="${a.empresa != null ? a.empresa.nombre : 'N/A'}"></td>
+                        <td>
+                            <span th:class="${'badge ' + (a.activo ? 'badge-success' : 'badge-danger')}"
+                                th:text="${a.activo ? 'Activo' : 'Inactivo'}"></span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>

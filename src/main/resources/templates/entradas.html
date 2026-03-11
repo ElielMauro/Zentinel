@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:replace="~{fragments/head :: head('Zentinel | Entradas')}"></head>
+
+<body>
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <div class="main-content">
+        <div
+            th:replace="~{fragments/topbar :: topbar('Recepción de Entradas', 'Registro de mercancía que ingresa al almacén')}">
+        </div>
+
+        <div style="margin-bottom: 2rem; display: flex; justify-content: flex-end;">
+            <a th:href="@{/entradas/nueva}" class="btn-primary" style="text-decoration: none;">+ Nueva Entrada</a>
+        </div>
+
+        <div class="form-card full-width">
+            <h3>Registro de Entradas</h3>
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th>Folio Factura</th>
+                        <th>Fecha Factura</th>
+                        <th>Proveedor</th>
+                        <th>Almacén Destino</th>
+                        <th>Total</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="e : ${listaEntradas}">
+                        <td th:text="${e.folioFactura}"></td>
+                        <td th:text="${#temporals.format(e.fechaFactura, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td th:text="${e.proveedor != null ? e.proveedor.nombreCorto : 'N/A'}"></td>
+                        <td th:text="${e.almacenDestino != null ? e.almacenDestino.nombre : 'N/A'}"></td>
+                        <td th:text="${'$' + e.total}"></td>
+                        <td>
+                            <span th:class="${'badge ' + (e.cancelado ? 'badge-danger' : 'badge-success')}"
+                                th:text="${e.cancelado ? 'Cancelado' : 'Activo'}"></span>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(listaEntradas)}">
+                        <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                            No hay entradas registradas.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>

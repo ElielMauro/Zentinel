@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:replace="~{fragments/head :: head('Zentinel | Reportes')}"></head>
+
+<body>
+
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+    <div class="main-content">
+        <div
+            th:replace="~{fragments/topbar :: topbar('Reportes y Estadísticas', 'Resúmenes de movimientos e inventario')}">
+        </div>
+
+        <div
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+            <div
+                style="background: var(--surface); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 2rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                <h3 style="margin-top: 0; color: var(--text-muted); font-size: 1rem;">Valor del Inventario</h3>
+                <p style="font-size: 2.5rem; font-weight: 700; margin: 0;">$--</p>
+            </div>
+        </div>
+
+        <div
+            style="padding: 3rem; background: var(--surface); border-radius: 16px; border: 1px dashed rgba(255,255,255,0.15); text-align: center; color: var(--text-muted);">
+            <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.4;">📊</div>
+            <h3 style="margin: 0 0 0.5rem;">Módulo en construcción</h3>
+            <p style="margin: 0;">Aquí se visualizarán gráficos y resúmenes de movimientos, stock valorizado e histórico
+                de transacciones.</p>
+        </div>
+    </div>
+
+</body>
+
+</html>

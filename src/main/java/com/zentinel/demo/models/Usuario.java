@@ -1,10 +1,18 @@
 package com.zentinel.demo.models;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "usuarios")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Usuario {
 
     @Id
@@ -35,82 +43,14 @@ public class Usuario {
     @Column(nullable = false)
     private Boolean activo = true;
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "usuario_almacen", joinColumns = @JoinColumn(name = "usuario"), inverseJoinColumns = @JoinColumn(name = "almacen_id"))
+    private Set<Almacen> almacenes = new HashSet<>();
+
     @PrePersist
     protected void onCreate() {
         if (fechaAlta == null) {
             fechaAlta = LocalDateTime.now();
         }
-    }
-
-    public String getUsuario() {
-        return usuario;
-    }
-
-    public void setUsuario(String usuario) {
-        this.usuario = usuario;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getApellidoPaterno() {
-        return apellidoPaterno;
-    }
-
-    public void setApellidoPaterno(String apellidoPaterno) {
-        this.apellidoPaterno = apellidoPaterno;
-    }
-
-    public String getApellidoMaterno() {
-        return apellidoMaterno;
-    }
-
-    public void setApellidoMaterno(String apellidoMaterno) {
-        this.apellidoMaterno = apellidoMaterno;
-    }
-
-    public String getCorreo() {
-        return correo;
-    }
-
-    public void setCorreo(String correo) {
-        this.correo = correo;
-    }
-
-    public String getRol() {
-        return rol;
-    }
-
-    public void setRol(String rol) {
-        this.rol = rol;
-    }
-
-    public LocalDateTime getFechaAlta() {
-        return fechaAlta;
-    }
-
-    public void setFechaAlta(LocalDateTime fechaAlta) {
-        this.fechaAlta = fechaAlta;
-    }
-
-    public Boolean getActivo() {
-        return activo;
-    }
-
-    public void setActivo(Boolean activo) {
-        this.activo = activo;
     }
 }

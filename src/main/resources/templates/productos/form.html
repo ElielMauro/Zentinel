@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Zentinel | Nuevo Producto')}"></head>
+
+<body>
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/topbar :: topbar('Nuevo Producto', 'Registro en catálogo')}"></div>
+
+        <div class="content-wrapper">
+            <form th:action="@{/productos/guardar}" th:object="${producto}" method="post" class="premium-form">
+                <div class="form-grid">
+                    <div class="form-card">
+                        <h3>Datos Básicos</h3>
+                        <div class="input-group">
+                            <label>SKU (Código único)</label>
+                            <input type="text" th:field="*{sku}" required placeholder="Ej. PROD-001">
+                        </div>
+                        <div class="input-group">
+                            <label>Nombre del Producto</label>
+                            <input type="text" th:field="*{nombre}" required placeholder="Ej. Martillo de bola">
+                        </div>
+                        <div class="input-group">
+                            <label>Categoría</label>
+                            <select th:field="*{tipoProducto}" required>
+                                <option value="">Seleccione...</option>
+                                <option th:each="c : ${categorias}" th:value="${c.id}" th:text="${c.nombre}"></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-card">
+                        <h3>Precios y Medida</h3>
+                        <div class="input-group">
+                            <label>Unidad de Medida</label>
+                            <input type="text" th:field="*{unidadMedida}" required placeholder="Ej. PZA, KG, M">
+                        </div>
+                        <div class="input-group">
+                            <label>Precio Unitario</label>
+                            <input type="number" th:field="*{precioUnitario}" step="0.01" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Precio de Venta (Opcional)</label>
+                            <input type="number" th:field="*{precioVenta}" step="0.01">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-card full-width">
+                    <label>Descripción</label>
+                    <textarea th:field="*{descripcion}" rows="2"></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Guardar Producto</button>
+                    <a th:href="@{/productos}" class="btn-ghost">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

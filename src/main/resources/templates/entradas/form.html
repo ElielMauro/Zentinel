@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Zentinel | Nueva Entrada')}"></head>
+
+<body>
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/topbar :: topbar('Nueva Entrada', 'Registro de recepción de mercancía')}"></div>
+
+        <div class="content-wrapper">
+            <div th:if="${param.error}" class="alert alert-danger"
+                style="margin-bottom: 1.5rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #EF4444; padding: 1rem; border-radius: 8px;">
+                <strong>Error:</strong> No se han agregado productos a la entrada.
+            </div>
+
+            <form th:action="@{/entradas/guardar}" th:object="${entrada}" method="post" class="premium-form"
+                id="entradaForm">
+                <div class="form-grid">
+                    <div class="form-card">
+                        <h3>Datos del Documento</h3>
+                        <div class="input-group">
+                            <label>Folio de Factura / Remisión</label>
+                            <input type="text" th:field="*{folioFactura}" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Fecha del Documento</label>
+                            <input type="datetime-local" th:field="*{fechaFactura}" required>
+                        </div>
+                    </div>
+
+                    <div class="form-card">
+                        <h3>Origen y Destino</h3>
+                        <div class="input-group">
+                            <label>Proveedor</label>
+                            <select th:field="*{proveedor}" required>
+                                <option value="">Seleccione...</option>
+                                <option th:each="p : ${proveedores}" th:value="${p.id}" th:text="${p.nombreCorto}">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Almacén de Recepción</label>
+                            <select th:field="*{almacenDestino}" required>
+                                <option th:each="a : ${almacenes}" th:value="${a.id}" th:text="${a.nombre}"></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-card full-width">
+                    <h3>Detalle de Productos</h3>
+                    <table class="premium-table" id="tablaEntrada">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Existencia</th>
+                                <th>Cantidad</th>
+                                <th>Precio Unitario</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detallesBody">
+                            <tr>
+                                <td>
+                                    <select name="productoSku" required onchange="updateStock(this)">
+                                        <option value="">Seleccione...</option>
+                                        <option th:each="p : ${productos}" th:value="${p.sku}"
+                                            th:text="${p.nombre + ' (' + p.sku + ')'}"></option>
+                                    </select>
+                                </td>
+                                <td class="stock-feedback">---</td>
+                                <td><input type="number" name="cantidad" step="0.0001" min="0.0001" required></td>
+                                <td><input type="number" name="precio" step="0.01" min="0" required></td>
+                                <td><button type="button" class="btn-icon delete-row">🗑️</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button type="button" class="btn-secondary mt-2" id="addRow">+ Agregar Producto</button>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Registrar Entrada</button>
+                    <a th:href="@{/entradas}" class="btn-ghost">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const inventoryMap = {};
+        /*[# th:each="inv : ${inventarioActivo}"]*/
+        inventoryMap[[${ inv.producto.sku }]] = [[${ inv.cantidad }]];
+        /*[/]*/
+        /*]]>*/
+
+        function updateStock(selectElement) {
+            const sku = selectElement.value;
+            const row = selectElement.closest('tr');
+            const feedback = row.querySelector('.stock-feedback');
+            if (sku && inventoryMap[sku] !== undefined) {
+                feedback.textContent = inventoryMap[sku];
+            } else {
+                feedback.textContent = '0';
+            }
+        }
+
+        document.getElementById('addRow').addEventListener('click', function () {
+            const body = document.getElementById('detallesBody');
+            const newRow = body.rows[0].cloneNode(true);
+            newRow.querySelectorAll('input').forEach(i => i.value = '');
+            newRow.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+            newRow.querySelector('.stock-feedback').textContent = '---';
+            body.appendChild(newRow);
+        });
+
+        document.getElementById('detallesBody').addEventListener('click', function (e) {
+            if (e.target.closest('.delete-row')) {
+                const body = document.getElementById('detallesBody');
+                if (body.rows.length > 1) {
+                    e.target.closest('tr').remove();
+                } else {
+                    alert('Debe tener al menos un producto en la lista.');
+                }
+            }
+        });
+
+        document.getElementById('entradaForm').addEventListener('submit', function (e) {
+            const rowCount = document.getElementById('detallesBody').rows.length;
+            const firstSku = document.querySelector('select[name="productoSku"]').value;
+
+            if (rowCount === 0 || (rowCount === 1 && !firstSku)) {
+                e.preventDefault();
+                alert('¡ERROR! Debe agregar al menos un objeto al registro antes de continuar.');
+            }
+        });
+    </script>
+</body>
+
+</html>
