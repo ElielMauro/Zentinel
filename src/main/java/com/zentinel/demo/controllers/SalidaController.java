@@ -11,6 +11,10 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.math.BigDecimal;
 
 @Controller
 @RequestMapping("/salidas")
@@ -52,7 +56,20 @@ public class SalidaController {
         model.addAttribute("usuarios", usuarioRepository.findAll());
 
         if (activeAlmacen != null) {
-            model.addAttribute("inventarioActivo", salidaService.getInventarioByAlmacen(activeAlmacen));
+            List<Inventario> inventarioFisico = salidaService.getInventarioByAlmacen(activeAlmacen);
+            
+            // Crear una lista de objetos simples para el mapa de inventario con stock disponible
+            List<Map<String, Object>> inventarioDisponible = inventarioFisico.stream().map(inv -> {
+                Map<String, Object> map = new HashMap<>();
+                BigDecimal comprometido = salidaService.getStockComprometido(inv.getProducto(), activeAlmacen);
+                BigDecimal disponible = inv.getCantidad().subtract(comprometido);
+                
+                map.put("sku", inv.getProducto().getSku());
+                map.put("cantidad", disponible);
+                return map;
+            }).collect(Collectors.toList());
+
+            model.addAttribute("inventarioActivo", inventarioDisponible);
         }
 
         return "salidas/form";

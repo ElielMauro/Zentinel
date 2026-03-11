@@ -114,7 +114,7 @@
         /*<![CDATA[*/
         const inventoryMap = {};
         /*[# th:each="inv : ${inventarioActivo}"]*/
-        inventoryMap[[${ inv.producto.sku }]] = [[${ inv.cantidad }]];
+        inventoryMap[[${ inv.sku }]] = [[${ inv.cantidad }]];
         /*[/]*/
         /*]]>*/
 

@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface EntradaRepository extends JpaRepository<Entrada, String> {
+    long countByFechaRecepcionAfter(java.time.LocalDateTime date);
 }
