@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
-<head th:replace="~{fragments/head :: head('Zentinel | Reportes')}"></head>
+<head th:replace="~{fragments/head :: head('Zentinel | Estadisticas')}"></head>
 
 <body>
 
     <div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
     <div class="main-content">
-        <div
-            th:replace="~{fragments/topbar :: topbar('Reportes y Estadísticas', 'Resúmenes de movimientos e inventario')}">
+        <div th:replace="~{fragments/topbar :: topbar('Estadísticas', 'Resúmenes de movimientos e inventario')}">
         </div>
 
         <div
