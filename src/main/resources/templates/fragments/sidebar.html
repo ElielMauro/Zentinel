@@ -19,8 +19,8 @@
             class="nav-item">Proveedores</a>
         <a href="/clientes" th:classappend="${#strings.startsWith(currentUri, '/clientes') ? 'active' : ''}"
             class="nav-item">Clientes</a>
-        <a href="/reportes" th:classappend="${#strings.startsWith(currentUri, '/reportes') ? 'active' : ''}"
-            class="nav-item">Reportes</a>
+        <a href="/estadisticas" th:classappend="${#strings.startsWith(currentUri, '/estadisticas') ? 'active' : ''}"
+            class="nav-item">Estadísticas</a>
 
         <!-- Renderizar solo si es ADMIN -->
         <th:block sec:authorize="hasRole('ADMIN')">
