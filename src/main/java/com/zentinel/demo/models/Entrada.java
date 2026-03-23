@@ -10,12 +10,11 @@ import java.util.List;
 @Table(name = "entradas")
 @Data
 public class Entrada {
-    @Id
-    @Column(name = "folio_factura", length = 50, nullable = false)
+    @Column(name = "folio_factura", length = 50, nullable = false, unique = true)
     private String folioFactura;
 
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(unique = true)
     private Integer id;
 
     @ManyToOne

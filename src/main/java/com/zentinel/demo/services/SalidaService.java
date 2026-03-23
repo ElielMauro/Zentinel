@@ -80,7 +80,7 @@ public class SalidaService {
     public BigDecimal getStockComprometido(Producto producto, Almacen almacen) {
         // Sumar cantidades de salidas que NO están completadas ni canceladas
         List<Salida> salidasPendientes = salidaRepository.findAll().stream()
-                .filter(s -> !s.getCancelado() && "RESERVADA".equals(s.getEstatus()) && s.getAlmacenOrigen().equals(almacen))
+                .filter(s -> !s.getCancelado() && "RESERVADA".equals(s.getEstatus()) && s.getAlmacenOrigen() != null && s.getAlmacenOrigen().equals(almacen))
                 .collect(Collectors.toList());
 
         BigDecimal comprometido = BigDecimal.ZERO;

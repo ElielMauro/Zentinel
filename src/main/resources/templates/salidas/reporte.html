@@ -96,7 +96,7 @@
 
     <div class="header">
         <div>
-            <h1>ZENTINEL WMS</h1>
+            <h1>ZENTINEL</h1>
             <p>Vale de Salida de Material</p>
         </div>
         <div style="text-align: right;">
@@ -159,6 +159,14 @@
             <small>Atendió (Almacén)</small>
         </div>
     </div>
+    <script>
+        window.onload = function () {
+            // Esperar un momento breve para asegurar que todo esté renderizado
+            setTimeout(function () {
+                window.print();
+            }, 500);
+        };
+    </script>
 </body>
 
 </html>

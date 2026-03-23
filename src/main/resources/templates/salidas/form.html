@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="~{fragments/head :: head}"></head>
+<head th:replace="~{fragments/head :: head('Zentinel | Nueva Salida')}"></head>
 
 <body>
     <div class="sidebar" th:replace="~{fragments/sidebar :: sidebar}"></div>
     <div class="main-content">
-        <div class="topbar" th:replace="~{fragments/topbar :: topbar}"></div>
+        <div th:replace="~{fragments/topbar :: topbar('Nueva Salida', 'Registro de materiales')}"></div>
 
         <div class="content-wrapper">
             <div class="header-section">
@@ -113,9 +113,15 @@
     <script th:inline="javascript">
         /*<![CDATA[*/
         const inventoryMap = {};
-        /*[# th:each="inv : ${inventarioActivo}"]*/
-        inventoryMap[[${ inv.sku }]] = [[${ inv.cantidad }]];
-        /*[/]*/
+        const inventarioActivo = /*[[${inventarioActivo}]]*/ [];
+        
+        if (Array.isArray(inventarioActivo)) {
+            inventarioActivo.forEach(inv => {
+                if (inv && inv.sku) {
+                    inventoryMap[inv.sku] = inv.cantidad || 0;
+                }
+            });
+        }
         /*]]>*/
 
         function updateStock(selectElement) {
@@ -138,11 +144,20 @@
 
         document.getElementById('addRow').addEventListener('click', function () {
             const body = document.getElementById('detallesBody');
-            const firstRow = body.rows[0];
+            const firstRow = body.querySelector('tr');
+            if (!firstRow) return;
+            
             const newRow = firstRow.cloneNode(true);
+            
+            // Limpiar valores
             newRow.querySelectorAll('input').forEach(i => i.value = '');
-            newRow.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
-            newRow.querySelector('.stock-feedback').textContent = '---';
+            newRow.querySelectorAll('select').forEach(s => {
+                s.selectedIndex = 0;
+                // Forzar el feedback de stock a vacío
+                const feedback = newRow.querySelector('.stock-feedback');
+                if (feedback) feedback.textContent = '---';
+            });
+            
             body.appendChild(newRow);
         });
 
