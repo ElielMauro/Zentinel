@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class SalidaService {
@@ -74,5 +75,46 @@ public class SalidaService {
 
     public List<Inventario> getInventarioByAlmacen(Almacen almacen) {
         return inventarioRepository.findByAlmacen(almacen);
+    }
+
+    public BigDecimal getStockComprometido(Producto producto, Almacen almacen) {
+        // Sumar cantidades de salidas que NO están completadas ni canceladas
+        List<Salida> salidasPendientes = salidaRepository.findAll().stream()
+                .filter(s -> !s.getCancelado() && "RESERVADA".equals(s.getEstatus()) && s.getAlmacenOrigen() != null && s.getAlmacenOrigen().equals(almacen))
+                .collect(Collectors.toList());
+
+        BigDecimal comprometido = BigDecimal.ZERO;
+        for (Salida s : salidasPendientes) {
+            for (SalidaDetalle d : s.getDetalles()) {
+                if (d.getProducto().getSku().equals(producto.getSku())) {
+                    comprometido = comprometido.add(d.getCantidadSolicitada());
+                }
+            }
+        }
+        return comprometido;
+    }
+
+    @Transactional
+    public Salida reservarSalida(Salida salida, List<SalidaDetalle> detalles) {
+        salida.setFecha(LocalDateTime.now());
+        salida.setEstatus("RESERVADA");
+        salida.setCancelado(false);
+
+        BigDecimal subtotal = BigDecimal.ZERO;
+        for (SalidaDetalle detalle : detalles) {
+            BigDecimal linea = detalle.getPrecioUnitario().multiply(detalle.getCantidadSolicitada());
+            detalle.setSubtotalLinea(linea);
+            subtotal = subtotal.add(linea);
+        }
+        salida.setSubtotal(subtotal);
+        salida.setIva(subtotal.multiply(new BigDecimal("0.16")));
+        salida.setTotal(subtotal.add(salida.getIva()));
+
+        Salida savedSalida = salidaRepository.save(salida);
+        for (SalidaDetalle detalle : detalles) {
+            detalle.setSalida(savedSalida);
+            salidaDetalleRepository.save(detalle);
+        }
+        return savedSalida;
     }
 }

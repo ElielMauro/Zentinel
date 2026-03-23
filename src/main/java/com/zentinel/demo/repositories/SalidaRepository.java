@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SalidaRepository extends JpaRepository<Salida, Integer> {
+    long countByFechaAfter(java.time.LocalDateTime date);
 }
