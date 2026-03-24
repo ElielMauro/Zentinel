@@ -20,4 +20,8 @@ public class ProductoService {
     public Producto findBySku(String sku) {
         return productoRepository.findById(sku).orElse(null);
     }
+
+    public Producto save(Producto producto) {
+        return productoRepository.save(producto);
+    }
 }

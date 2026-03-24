@@ -11,13 +11,20 @@
         <div th:replace="~{fragments/topbar :: topbar('Catálogo de Productos', 'Gestión de productos del almacén')}">
         </div>
 
-        <div style="margin-bottom: 2rem; display: flex; justify-content: flex-end;">
-            <a th:href="@{/productos/nuevo}" class="btn-add">+ Nuevo Producto</a>
+        <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+            <div class="search-container" style="margin-bottom: 0; width: 400px;">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" placeholder="Buscar por SKU, nombre o categoría..." onkeyup="filterTable()">
+            </div>
+            <a th:href="@{/productos/nuevo}" class="btn-add">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Nuevo Producto
+            </a>
         </div>
 
         <div class="form-card full-width">
             <h3>Catálogo de Productos</h3>
-            <table class="premium-table">
+            <table class="premium-table" id="productsTable">
                 <thead>
                     <tr>
                         <th>SKU</th>
@@ -30,7 +37,11 @@
                 </thead>
                 <tbody>
                     <tr th:each="p : ${listaProductos}">
-                        <td th:text="${p.sku}"></td>
+                        <td>
+                            <a th:href="@{/productos/detalle/{sku}(sku=${p.sku})}" 
+                               style="color: var(--primary); text-decoration: none; font-weight: 600;" 
+                               th:text="${p.sku}"></a>
+                        </td>
                         <td th:text="${p.nombre}"></td>
                         <td th:text="${p.tipoProducto != null ? p.tipoProducto.nombre : 'S/C'}"></td>
                         <td th:text="${'$' + p.precioUnitario}"></td>
@@ -50,6 +61,29 @@
         </div>
     </div>
 
+    <script>
+        function filterTable() {
+            const input = document.getElementById("searchInput");
+            const filter = input.value.toUpperCase();
+            const table = document.getElementById("productsTable");
+            const tr = table.getElementsByTagName("tr");
+
+            for (let i = 1; i < tr.length; i++) {
+                let found = false;
+                const tds = tr[i].getElementsByTagName("td");
+                for (let j = 0; j < tds.length; j++) {
+                    if (tds[j]) {
+                        const txtValue = tds[j].textContent || tds[j].innerText;
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+                tr[i].style.display = found ? "" : "none";
+            }
+        }
+    </script>
 </body>
 
 </html>

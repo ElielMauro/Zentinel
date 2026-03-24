@@ -41,6 +41,9 @@ public class Salida {
     @Column(length = 500)
     private String descripcion;
 
+    @Column(name = "nombre_solicitante", length = 100)
+    private String nombreSolicitante;
+
     @Column(length = 20)
     private String estatus;
 

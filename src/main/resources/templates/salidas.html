@@ -11,13 +11,20 @@
         <div th:replace="~{fragments/topbar :: topbar('Salidas', 'Registro de mercancía que sale del almacén')}">
         </div>
 
-        <div style="margin-bottom: 2rem; display: flex; justify-content: flex-end;">
-            <a th:href="@{/salidas/nueva}" class="btn-add">+ Nueva Salida</a>
+        <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+            <div class="search-container" style="margin-bottom: 0; width: 400px;">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" placeholder="Buscar por folio, área o solicitante..." onkeyup="filterTable()">
+            </div>
+            <a th:href="@{/salidas/nueva}" class="btn-add">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Nueva Salida
+            </a>
         </div>
 
         <div class="form-card full-width">
             <h3>Registro de Salidas Recientes</h3>
-            <table class="premium-table">
+            <table class="premium-table" id="salidasTable">
                 <thead>
                     <tr>
                         <th>Folio</th>
@@ -31,7 +38,11 @@
                 </thead>
                 <tbody>
                     <tr th:each="s : ${listaSalidas}">
-                        <td th:text="${s.folio}"></td>
+                        <td>
+                            <a th:href="@{/salidas/detalle/{f}(f=${s.folio})}" 
+                               style="color: var(--primary); text-decoration: none; font-weight: 600;" 
+                               th:text="${s.folio}"></a>
+                        </td>
                         <td th:text="${#temporals.format(s.fecha, 'dd/MM/yyyy HH:mm')}"></td>
                         <td th:text="${s.area != null ? s.area.nombre : 'N/A'}"></td>
                         <td th:text="${s.usuarioSolicitante.nombre + ' ' + s.usuarioSolicitante.apellidoPaterno}"></td>
@@ -40,8 +51,9 @@
                             <span th:class="${'badge ' + (s.cancelado ? 'badge-danger' : 'badge-success')}"
                                 th:text="${s.cancelado ? 'Cancelado' : s.estatus}"></span>
                         </td>
-                        <td>
-                            <a th:href="@{/salidas/reporte/{f}(f=${s.folio})}" class="btn-icon">🖨️</a>
+                        <td style="display: flex; gap: 0.5rem;">
+                            <a th:href="@{/salidas/detalle/{f}(f=${s.folio})}" class="btn-icon" title="Ver Detalle">👁️</a>
+                            <a th:href="@{/salidas/reporte/{f}(f=${s.folio})}" class="btn-icon" title="Imprimir">🖨️</a>
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(listaSalidas)}">
@@ -54,6 +66,29 @@
         </div>
     </div>
 
+    <script>
+        function filterTable() {
+            const input = document.getElementById("searchInput");
+            const filter = input.value.toUpperCase();
+            const table = document.getElementById("salidasTable");
+            const tr = table.getElementsByTagName("tr");
+
+            for (let i = 1; i < tr.length; i++) {
+                let found = false;
+                const tds = tr[i].getElementsByTagName("td");
+                for (let j = 0; j < tds.length; j++) {
+                    if (tds[j]) {
+                        const txtValue = tds[j].textContent || tds[j].innerText;
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+                tr[i].style.display = found ? "" : "none";
+            }
+        }
+    </script>
 </body>
 
 </html>

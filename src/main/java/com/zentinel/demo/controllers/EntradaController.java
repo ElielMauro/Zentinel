@@ -63,6 +63,15 @@ public class EntradaController {
         return "entradas/form";
     }
 
+    @GetMapping("/detalle/{id}")
+    public String verDetalle(@PathVariable Integer id, Model model) {
+        Entrada entrada = entradaService.findById(id);
+        if (entrada == null)
+            return "redirect:/entradas";
+        model.addAttribute("entrada", entrada);
+        return "entradas/detalle";
+    }
+
     @PostMapping("/guardar")
     public String save(@ModelAttribute Entrada entrada,
             @RequestParam("productoSku") List<String> skus,

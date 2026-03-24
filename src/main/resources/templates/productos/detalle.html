@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Zentinel | Detalle de Producto')}"></head>
+
+<body>
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/topbar :: topbar('Detalle de Producto', 'Información completa del material')}"></div>
+
+        <div class="content-wrapper">
+            <div class="header-section" style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <h1 th:text="${producto.nombre}">Nombre del Producto</h1>
+                    <p th:text="'SKU: ' + ${producto.sku}" style="color: var(--text-muted);"></p>
+                </div>
+                <div class="badge" th:classappend="${producto.activo ? 'badge-success' : 'badge-danger'}"
+                    th:text="${producto.activo ? 'Activo' : 'Inactivo'}"></div>
+            </div>
+
+            <div class="form-card full-width">
+                <h3>Información General</h3>
+                <div class="detail-grid" th:if="${producto != null}">
+                    <div class="detail-item">
+                        <label>Categoría</label>
+                        <span th:text="${producto.tipoProducto != null ? producto.tipoProducto.nombre : 'Sin Categoría'}" style="font-size: 1.1rem; font-weight: 500;"></span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Precio Unitario</label>
+                        <span th:text="${#numbers.formatCurrency(producto.precioUnitario)}" style="color: var(--primary); font-weight: 600; font-size: 1.2rem;"></span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Unidad de Medida</label>
+                        <span th:text="${producto.unidadMedida}"></span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Marca / Modelo</label>
+                        <span th:text="${(producto.marca != null ? producto.marca : '-') + ' / ' + (producto.modelo != null ? producto.modelo : '-')}"></span>
+                    </div>
+                </div>
+                
+                <div class="detail-item" style="margin-top: 1.5rem;" th:if="${producto != null}">
+                    <label>Descripción</label>
+                    <p th:text="${producto.descripcion != null && !producto.descripcion.isEmpty() ? producto.descripcion : 'Sin descripción disponible.'}" 
+                       th:style="'background: rgba(15, 23, 42, 0.4); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); font-style: ' + (${producto.descripcion == null || producto.descripcion.isEmpty()} ? 'italic' : 'normal') + ';'"></p>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a th:href="@{/productos}" class="btn-ghost">← Volver al Catálogo</a>
+                <a th:href="@{/productos/editar/{sku}(sku=${producto.sku})}" class="btn-primary">Editar Producto</a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

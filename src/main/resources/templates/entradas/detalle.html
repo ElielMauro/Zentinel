@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Zentinel | Detalle de Entrada')}"></head>
+
+<body>
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/topbar :: topbar('Detalle de Entrada', 'Recepción de mercancía')}"></div>
+
+        <div class="content-wrapper">
+            <div class="header-section" style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <h1 th:text="'Factura #' + ${entrada.folioFactura}">Folio</h1>
+                    <p th:text="'Fecha de Recepción: ' + ${#temporals.format(entrada.fechaRecepcion, 'dd/MM/yyyy HH:mm')}" style="color: var(--text-muted);"></p>
+                </div>
+                <div class="badge" th:classappend="${entrada.cancelado ? 'badge-danger' : 'badge-success'}"
+                    th:text="${entrada.cancelado ? 'Cancelado' : 'Activo'}"></div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-card">
+                    <h3>Datos del Documento</h3>
+                    <div class="detail-item" style="margin-bottom: 1rem;">
+                        <label>Proveedor</label>
+                        <span th:text="${entrada.proveedor != null ? entrada.proveedor.nombreFiscal : 'N/A'}"></span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Fecha del Documento</label>
+                        <span th:text="${#temporals.format(entrada.fechaFactura, 'dd/MM/yyyy')}"></span>
+                    </div>
+                </div>
+
+                <div class="form-card">
+                    <h3>Destino</h3>
+                    <div class="detail-item">
+                        <label>Almacén de Recepción</label>
+                        <span th:text="${entrada.almacenDestino != null ? entrada.almacenDestino.nombre : 'N/A'}"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-card full-width">
+                <h3>Detalle de Materiales</h3>
+                <table class="premium-table">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>SKU</th>
+                            <th style="text-align: center;">Cantidad</th>
+                            <th style="text-align: right;">Precio Unit.</th>
+                            <th style="text-align: right;">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="d : ${entrada.detalles}">
+                            <td th:text="${d.producto.nombre}"></td>
+                            <td th:text="${d.producto.sku}"></td>
+                            <td style="text-align: center;" th:text="${d.cantidad}"></td>
+                            <td style="text-align: right;" th:text="${'$' + d.precioUnitario}"></td>
+                            <td style="text-align: right;" th:text="${'$' + d.subtotalLinea}"></td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="4" style="text-align: right; font-weight: 700;">IVA (16%):</td>
+                            <td style="text-align: right; font-weight: 700;" th:text="${'$' + entrada.iva}"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" style="text-align: right; font-weight: 700; font-size: 1.2rem;">TOTAL:</td>
+                            <td style="text-align: right; font-weight: 700; font-size: 1.2rem; color: var(--primary);" th:text="${'$' + entrada.total}"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="form-actions">
+                <a th:href="@{/entradas}" class="btn-ghost">← Volver al Listado</a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

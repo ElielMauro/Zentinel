@@ -54,17 +54,21 @@ public class SalidaController {
         model.addAttribute("almacenes", almacenService.findByUser(currentUser));
         model.addAttribute("areas", areaRepository.findAll());
         model.addAttribute("usuarios", usuarioRepository.findAll());
+        // El que atiende puede ser cualquier usuario con rol ADMIN o MOSTRADOR
+        model.addAttribute("usuariosAtendio", usuarioRepository.findAll()); 
 
         if (activeAlmacen != null) {
             List<Inventario> inventarioFisico = salidaService.getInventarioByAlmacen(activeAlmacen);
             
-            // Crear una lista de objetos simples para el mapa de inventario con stock disponible
+            // Crear una lista de objetos simples para el mapa de inventario
             List<Map<String, Object>> inventarioDisponible = inventarioFisico.stream().map(inv -> {
                 Map<String, Object> map = new HashMap<>();
                 BigDecimal comprometido = salidaService.getStockComprometido(inv.getProducto(), activeAlmacen);
                 BigDecimal disponible = inv.getCantidad().subtract(comprometido);
                 
                 map.put("sku", inv.getProducto().getSku());
+                map.put("nombre", inv.getProducto().getNombre());
+                map.put("precio", inv.getProducto().getPrecioUnitario());
                 map.put("cantidad", disponible);
                 return map;
             }).collect(Collectors.toList());
@@ -79,10 +83,14 @@ public class SalidaController {
     public String guardarSalida(@ModelAttribute Salida salida,
             @RequestParam("productoId") List<String> skus,
             @RequestParam("cantidad") List<java.math.BigDecimal> cantidades,
+            @RequestParam(value = "precioUnitario", required = false) List<java.math.BigDecimal> precios,
             Principal principal) {
 
-        Usuario currentUser = usuarioRepository.findById(principal.getName()).orElse(null);
-        salida.setUsuarioAtendio(currentUser);
+        // Si no se asignó alguien que atendió en el modelo, usar el usuario logueado
+        if (salida.getUsuarioAtendio() == null) {
+            Usuario currentUser = usuarioRepository.findById(principal.getName()).orElse(null);
+            salida.setUsuarioAtendio(currentUser);
+        }
 
         List<SalidaDetalle> detalles = new ArrayList<>();
         for (int i = 0; i < skus.size(); i++) {
@@ -98,7 +106,13 @@ public class SalidaController {
             det.setProducto(p);
             det.setCantidadSolicitada(cantidades.get(i));
             det.setCantidadEntregada(cantidades.get(i));
-            det.setPrecioUnitario(p.getPrecioUnitario());
+            
+            // Usar el precio enviado (si existe) o el del catálogo
+            if (precios != null && i < precios.size() && precios.get(i) != null) {
+                det.setPrecioUnitario(precios.get(i));
+            } else {
+                det.setPrecioUnitario(p.getPrecioUnitario());
+            }
             detalles.add(det);
         }
 
@@ -108,6 +122,15 @@ public class SalidaController {
 
         Salida guardada = salidaService.registrarSalida(salida, detalles);
         return "redirect:/salidas/reporte/" + guardada.getFolio();
+    }
+
+    @GetMapping("/detalle/{folio}")
+    public String verDetalle(@PathVariable Integer folio, Model model) {
+        Salida salida = salidaService.findByFolio(folio);
+        if (salida == null)
+            return "redirect:/salidas";
+        model.addAttribute("salida", salida);
+        return "salidas/detalle";
     }
 
     @GetMapping("/reporte/{folio}")
