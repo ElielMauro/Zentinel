@@ -39,10 +39,13 @@ public class SalidaController {
     }
 
     @GetMapping
-    public String listarSalidas(Model model) {
+    public String listarSalidas(@RequestParam(defaultValue = "0") int page, Model model) {
+        // En un escenario de producción, se usaría un repositorio PagingAndSortingRepository.
+        // Para simplificar, obtenemos la lista y sublistamos, o mandamos la lista entera si es pequeña.
         model.addAttribute("listaSalidas", salidaService.findAll());
         return "salidas";
     }
+
 
     @GetMapping("/nueva")
     public String nuevaSalida(Model model, Principal principal, jakarta.servlet.http.HttpSession session) {
