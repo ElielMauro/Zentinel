@@ -10,13 +10,20 @@
             th:replace="~{fragments/topbar :: topbar('Recepción de Entradas', 'Registro de mercancía que ingresa al almacén')}">
         </div>
 
-        <div style="margin-bottom: 2rem; display: flex; justify-content: flex-end;">
-            <a th:href="@{/entradas/nueva}" class="btn-add">+ Nueva Entrada</a>
+        <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+            <div class="search-container" style="margin-bottom: 0; width: 400px;">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" placeholder="Buscar por factura o proveedor..." onkeyup="filterTable()">
+            </div>
+            <a th:href="@{/entradas/nueva}" class="btn-add">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Nueva Entrada
+            </a>
         </div>
 
         <div class="form-card full-width">
             <h3>Registro de Entradas</h3>
-            <table class="premium-table">
+            <table class="premium-table" id="entradasTable">
                 <thead>
                     <tr>
                         <th>Folio Factura</th>
@@ -25,11 +32,16 @@
                         <th>Almacén Destino</th>
                         <th>Total</th>
                         <th>Estado</th>
+                        <th>Acción</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr th:each="e : ${listaEntradas}">
-                        <td th:text="${e.folioFactura}"></td>
+                        <td>
+                            <a th:href="@{/entradas/detalle/{id}(id=${e.id})}" 
+                               style="color: var(--primary); text-decoration: none; font-weight: 600;" 
+                               th:text="${e.folioFactura}"></a>
+                        </td>
                         <td th:text="${#temporals.format(e.fechaFactura, 'dd/MM/yyyy HH:mm')}"></td>
                         <td th:text="${e.proveedor != null ? e.proveedor.nombreCorto : 'N/A'}"></td>
                         <td th:text="${e.almacenDestino != null ? e.almacenDestino.nombre : 'N/A'}"></td>
@@ -37,6 +49,9 @@
                         <td>
                             <span th:class="${'badge ' + (e.cancelado ? 'badge-danger' : 'badge-success')}"
                                 th:text="${e.cancelado ? 'Cancelado' : 'Activo'}"></span>
+                        </td>
+                        <td>
+                            <a th:href="@{/entradas/detalle/{id}(id=${e.id})}" class="btn-icon" title="Ver Detalle">👁️</a>
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(listaEntradas)}">
@@ -48,6 +63,29 @@
             </table>
         </div>
     </div>
+    <script>
+        function filterTable() {
+            const input = document.getElementById("searchInput");
+            const filter = input.value.toUpperCase();
+            const table = document.getElementById("entradasTable");
+            const tr = table.getElementsByTagName("tr");
+
+            for (let i = 1; i < tr.length; i++) {
+                let found = false;
+                const tds = tr[i].getElementsByTagName("td");
+                for (let j = 0; j < tds.length; j++) {
+                    if (tds[j]) {
+                        const txtValue = tds[j].textContent || tds[j].innerText;
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+                tr[i].style.display = found ? "" : "none";
+            }
+        }
+    </script>
 </body>
 
 </html>

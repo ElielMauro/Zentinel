@@ -90,10 +90,30 @@
     <script th:inline="javascript">
         /*<![CDATA[*/
         const inventoryMap = {};
-        /*[# th:each="inv : ${inventarioActivo}"]*/
-        inventoryMap[[${ inv.producto.sku }]] = [[${ inv.cantidad }]];
-        /*[/]*/
+        const inventarioActivo = /*[[${inventarioActivo}]]*/ [];
+        if (Array.isArray(inventarioActivo)) {
+            inventarioActivo.forEach(inv => {
+                if (inv && inv.producto && inv.producto.sku) {
+                    inventoryMap[inv.producto.sku] = inv.cantidad || 0;
+                }
+            });
+        }
         /*]]>*/
+
+        function initTomSelect(element) {
+            new TomSelect(element, {
+                create: false,
+                sortField: {
+                    field: "text",
+                    direction: "asc"
+                },
+                placeholder: "Buscar producto...",
+                allowEmptyOption: true
+            });
+        }
+
+        // Initialize existing selects
+        document.querySelectorAll('select[name="productoSku"]').forEach(el => initTomSelect(el));
 
         function updateStock(selectElement) {
             const sku = selectElement.value;
@@ -108,10 +128,32 @@
 
         document.getElementById('addRow').addEventListener('click', function () {
             const body = document.getElementById('detallesBody');
-            const newRow = body.rows[0].cloneNode(true);
+            const firstRow = body.querySelector('tr');
+            if (!firstRow) return;
+
+            const newRow = firstRow.cloneNode(true);
+            
+            // Tom Select clones the wrapper, we only want the original select
+            const tsWrapper = newRow.querySelector('.ts-wrapper');
+            if (tsWrapper) {
+                const originalSelect = tsWrapper.previousElementSibling;
+                tsWrapper.remove();
+                originalSelect.style.display = 'block'; 
+                originalSelect.classList.remove('tomselected');
+                originalSelect.removeAttribute('id');
+            }
+
+            // Limpiar valores
             newRow.querySelectorAll('input').forEach(i => i.value = '');
-            newRow.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
-            newRow.querySelector('.stock-feedback').textContent = '---';
+            const select = newRow.querySelector('select');
+            if (select) {
+                select.value = '';
+                setTimeout(() => initTomSelect(select), 10);
+            }
+            
+            const feedback = newRow.querySelector('.stock-feedback');
+            if (feedback) feedback.textContent = '---';
+            
             body.appendChild(newRow);
         });
 

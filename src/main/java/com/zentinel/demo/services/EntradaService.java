@@ -74,4 +74,8 @@ public class EntradaService {
     public List<Entrada> findAll() {
         return entradaRepository.findAll();
     }
+
+    public Entrada findById(Integer id) {
+        return entradaRepository.findById(id).orElse(null);
+    }
 }

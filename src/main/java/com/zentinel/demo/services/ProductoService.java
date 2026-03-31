@@ -20,4 +20,15 @@ public class ProductoService {
     public Producto findBySku(String sku) {
         return productoRepository.findById(sku).orElse(null);
     }
+
+    public Producto save(Producto producto) {
+        return productoRepository.save(producto);
+    }
+
+    public java.math.BigDecimal calcularPuntoReordenDinamico(String sku, int diasHistorico) {
+        // Lógica para calcular punto de reorden basado en uso promedio
+        // TODO: Consultar Salidas recientes para estimar demanda
+        return new java.math.BigDecimal("10.00"); // Valor por defecto
+    }
 }
+

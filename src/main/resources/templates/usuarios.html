@@ -132,10 +132,18 @@
     <div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
     <div class="main-content">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; gap: 2rem;">
             <div th:replace="~{fragments/topbar :: topbar('Gestión de Usuarios', null)}"
                 style="margin-bottom: 0; flex:1;"></div>
-            <button class="btn-add" onclick="document.getElementById('userModal').style.display='flex'">+ Nuevo
+            
+            <div class="search-box" style="flex: 1; max-width: 400px; position: relative;">
+                <input type="text" id="userSearch" placeholder="Buscar por nombre, usuario o correo..." 
+                       onkeyup="filterUsers()"
+                       style="width: 100%; padding: 0.8rem 1rem 0.8rem 2.5rem; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white;">
+                <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); opacity: 0.5;">🔍</span>
+            </div>
+
+            <button class="btn-primary" onclick="document.getElementById('userModal').style.display='flex'" style="padding: 0.8rem 1.5rem; border-radius: 12px;">+ Nuevo
                 Usuario</button>
         </div>
 
@@ -230,6 +238,31 @@
     </div>
 
     <script>
+        function filterUsers() {
+            const input = document.getElementById("userSearch");
+            const filter = input.value.toLowerCase();
+            const table = document.querySelector("table");
+            const tr = table.getElementsByTagName("tr");
+
+            for (let i = 1; i < tr.length; i++) {
+                const tdUsuario = tr[i].getElementsByTagName("td")[0];
+                const tdNombre = tr[i].getElementsByTagName("td")[1];
+                const tdCorreo = tr[i].getElementsByTagName("td")[2];
+                if (tdUsuario || tdNombre || tdCorreo) {
+                    const txtUsuario = tdUsuario.textContent || tdUsuario.innerText;
+                    const txtNombre = tdNombre.textContent || tdNombre.innerText;
+                    const txtCorreo = tdCorreo.textContent || tdCorreo.innerText;
+                    if (txtUsuario.toLowerCase().indexOf(filter) > -1 || 
+                        txtNombre.toLowerCase().indexOf(filter) > -1 ||
+                        txtCorreo.toLowerCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
         window.onclick = function (event) {
             var modal = document.getElementById('userModal');
             if (event.target == modal) {

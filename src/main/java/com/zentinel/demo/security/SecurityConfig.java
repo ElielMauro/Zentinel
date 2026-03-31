@@ -11,6 +11,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
+@org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 public class SecurityConfig {
 
     private final UserDetailsServiceImpl userDetailsService;
@@ -24,16 +25,20 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/login", "/error").permitAll()
-                        // Administración total para ADMIN
-                        .requestMatchers("/usuarios/**", "/almacenes/**", "/configuracion/**").hasRole("ADMIN")
-                        // Catálogos: ADMIN puede crear/editar, MOSTRADOR solo ver
+                        // Panel exclusivo del Super Admin (Zentinel)
+                        .requestMatchers("/zentinel-master/**").hasRole("SUPER_ADMIN")
+                        // Administración de la Empresa
+                        .requestMatchers("/usuarios/**", "/almacenes/**", "/configuracion/**").hasRole("ADMIN_EMPRESA")
+                        // Catálogos: ADMIN_EMPRESA puede crear/editar
                         .requestMatchers("/productos/nuevo", "/productos/guardar", "/categorias/**",
                                 "/proveedores/nuevo", "/proveedores/guardar", "/clientes/nuevo", "/clientes/guardar")
-                        .hasRole("ADMIN")
+                        .hasRole("ADMIN_EMPRESA")
+                        // Lectura y Operación
                         .requestMatchers("/productos/**", "/proveedores/**", "/clientes/**")
-                        .hasAnyRole("ADMIN", "MOSTRADOR")
-                        // Movimientos: Ambos pueden operar
-                        .requestMatchers("/entradas/**", "/salidas/**", "/reportes/**").hasAnyRole("ADMIN", "MOSTRADOR")
+                        .hasAnyRole("SUPER_ADMIN", "ADMIN_EMPRESA", "AUDITOR", "OPERATIVO")
+                        // Movimientos y Reportes
+                        .requestMatchers("/entradas/**", "/salidas/**", "/reportes/**")
+                        .hasAnyRole("ADMIN_EMPRESA", "OPERATIVO", "AUDITOR")
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")

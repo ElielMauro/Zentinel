@@ -27,6 +27,9 @@ public class Inventario {
     @Column(name = "ubicacion_fisica", length = 100)
     private String ubicacionFisica;
 
+    @Column(name = "tipo_inventario", length = 50)
+    private String tipoInventario; // 'STOCK_GENERAL' or 'PRESUPUESTO'
+
     @Column(name = "punto_reorden", precision = 12, scale = 4)
     private BigDecimal puntoReorden;
 

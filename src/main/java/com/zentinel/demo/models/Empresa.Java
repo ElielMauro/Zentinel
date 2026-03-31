@@ -23,4 +23,19 @@ public class Empresa {
 
     @Column(nullable = false, length = 13)
     private String rfc;
-}
+
+    @Column(length = 50)
+    private String plan;
+
+    @Column(name = "contacto_principal", length = 100)
+    private String contactoPrincipal;
+
+    @Column(name = "email_contacto", length = 100)
+    private String emailContacto;
+
+    @Column(nullable = false)
+    private Boolean activo = true;
+
+    @Column(name = "fecha_alta")
+    private java.time.LocalDateTime fechaAlta = java.time.LocalDateTime.now();
+}

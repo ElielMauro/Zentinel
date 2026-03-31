@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Zentinel | Detalle de Salida')}"></head>
+
+<body>
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/topbar :: topbar('Detalle de Salida', 'Resumen de movimiento')}"></div>
+
+        <div class="content-wrapper">
+            <div class="header-section" style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <h1 th:text="'Vale de Salida #' + ${salida.folio}">Folio</h1>
+                    <p th:text="${#temporals.format(salida.fecha, 'dd/MM/yyyy HH:mm')}" style="color: var(--text-muted);"></p>
+                </div>
+                <div class="badge" th:classappend="${salida.cancelado ? 'badge-danger' : 'badge-success'}"
+                    th:text="${salida.cancelado ? 'Cancelado' : salida.estatus}"></div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-card">
+                    <h3>Datos de Origen / Destino</h3>
+                    <div class="detail-item" style="margin-bottom: 1rem;">
+                        <label>Almacén de Origen</label>
+                        <span th:text="${salida.almacenOrigen != null ? salida.almacenOrigen.nombre : 'N/A'}"></span>
+                    </div>
+                    <div class="detail-item" style="margin-bottom: 1rem;">
+                        <label>Área Destino</label>
+                        <span th:text="${salida.area != null ? salida.area.nombre : 'N/A'}"></span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Departamento</label>
+                        <span th:text="${salida.departamento}"></span>
+                    </div>
+                </div>
+
+                <div class="form-card">
+                    <h3>Personal Involucrado</h3>
+                    <div class="detail-item" style="margin-bottom: 1rem;">
+                        <label>Solicitante</label>
+                        <span th:text="${salida.usuarioSolicitante.nombre + ' ' + salida.usuarioSolicitante.apellidoPaterno}"></span>
+                    </div>
+                    <div class="detail-item" style="margin-bottom: 1rem;">
+                        <label>Atendió</label>
+                        <span th:text="${salida.usuarioAtendio != null ? salida.usuarioAtendio.nombre + ' ' + salida.usuarioAtendio.apellidoPaterno : 'Sistema'}"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-card full-width">
+                <h3>Detalle de Materiales</h3>
+                <table class="premium-table">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>SKU</th>
+                            <th style="text-align: center;">Cantidad</th>
+                            <th style="text-align: right;">Precio Unit.</th>
+                            <th style="text-align: right;">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="d : ${salida.detalles}">
+                            <td th:text="${d.producto.nombre}"></td>
+                            <td th:text="${d.producto.sku}"></td>
+                            <td style="text-align: center;" th:text="${d.cantidadEntregada}"></td>
+                            <td style="text-align: right;" th:text="${'$' + d.precioUnitario}"></td>
+                            <td style="text-align: right;" th:text="${'$' + d.subtotalLinea}"></td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="4" style="text-align: right; font-weight: 700;">IVA (16%):</td>
+                            <td style="text-align: right; font-weight: 700;" th:text="${'$' + salida.iva}"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" style="text-align: right; font-weight: 700; font-size: 1.2rem;">TOTAL:</td>
+                            <td style="text-align: right; font-weight: 700; font-size: 1.2rem; color: var(--primary);" th:text="${'$' + salida.total}"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="form-actions">
+                <a th:href="@{/salidas}" class="btn-ghost">← Volver al Listado</a>
+                <a th:href="@{/salidas/reporte/{f}(f=${salida.folio})}" class="btn-primary">Imprimir Vale</a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -27,14 +27,31 @@ public class ProductoController {
 
     @GetMapping("/nuevo")
     public String form(Model model) {
-        model.addAttribute("producto", new Producto());
-        model.addAttribute("categorias", tipoProductoRepository.findAll());
-        return "productos/form";
+        System.out.println("DEBUG: Entrando a /productos/nuevo");
+        try {
+            model.addAttribute("producto", new Producto());
+            var cats = tipoProductoRepository.findAll();
+            System.out.println("DEBUG: Categorias encontradas: " + (cats != null ? cats.size() : "null"));
+            model.addAttribute("categorias", cats);
+            return "productos/form";
+        } catch (Exception e) {
+            System.err.println("DEBUG ERROR en /productos/nuevo: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    @GetMapping("/detalle/{sku}")
+    public String detail(@PathVariable String sku, Model model) {
+        Producto p = productoService.findBySku(sku);
+        if (p == null) return "redirect:/productos";
+        model.addAttribute("producto", p);
+        return "productos/detalle";
     }
 
     @PostMapping("/guardar")
     public String save(@ModelAttribute Producto producto) {
-        // productoService.save(producto);
+        productoService.save(producto);
         return "redirect:/productos";
     }
 }
