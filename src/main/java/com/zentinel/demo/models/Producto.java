@@ -46,6 +46,10 @@ public class Producto {
     @Column(name = "imagen_url", length = 255)
     private String imagenUrl;
 
+    @Column(length = 50)
+    private String estado; // e.g., 'DAÑADO', 'ROTO', 'OBSOLETO', 'OK'
+
     @Column(nullable = false)
     private Boolean activo = true;
 }
+
