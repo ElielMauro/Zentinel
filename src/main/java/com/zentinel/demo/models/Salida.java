@@ -14,6 +14,10 @@ public class Salida {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer folio;
 
+    @Column(name = "folio_formateado", length = 50, unique = true)
+    private String folioFormateado;
+
+
     @Column(name = "fecha")
     private LocalDateTime fecha;
 
