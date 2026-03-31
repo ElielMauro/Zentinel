@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:replace="~{fragments/head :: head('Zentinel Master | Empresas')}"></head>
+
+<body>
+
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+    <div class="main-content">
+        <div th:replace="~{fragments/topbar :: topbar('Zentinel Master', 'Gestión Global de Empresas')}"></div>
+
+        <div class="header">
+            <h1>Empresas Registradas</h1>
+            <a th:href="@{/zentinel-master/empresas/nueva}" class="btn-add">
+                <span>+</span> Nueva Empresa
+            </a>
+        </div>
+
+        <div class="form-card full-width">
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Código</th>
+                        <th>Razón Social</th>
+                        <th>RFC</th>
+                        <th>Plan</th>
+                        <th>Contacto</th>
+                        <th>Status</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="empresa : ${empresas}">
+                        <td th:text="${empresa.id}"></td>
+                        <td th:text="${empresa.codigo}"></td>
+                        <td th:text="${empresa.nombre}"></td>
+                        <td th:text="${empresa.rfc}"></td>
+                        <td>
+                            <span class="badge" 
+                                  th:classappend="${empresa.plan == 'PREMIUM' ? 'badge-success' : 'badge-secondary'}"
+                                  th:text="${empresa.plan}"></span>
+                        </td>
+                        <td th:text="${empresa.contactoPrincipal}"></td>
+                        <td>
+                            <span th:if="${empresa.activo}" class="badge badge-success">Activo</span>
+                            <span th:unless="${empresa.activo}" class="badge badge-danger">Inactivo</span>
+                        </td>
+                        <td class="form-actions" style="justify-content: flex-start;">
+                            <a th:href="@{/zentinel-master/empresas/editar/{id}(id=${empresa.id})}" class="btn-ghost">Editar</a>
+                            <a th:href="@{/zentinel-master/empresas/eliminar/{id}(id=${empresa.id})}" 
+                               class="btn-ghost" style="color: var(--danger);"
+                               onclick="return confirm('¿Está seguro de eliminar esta empresa?')">Eliminar</a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(empresas)}">
+                        <td colspan="8" style="text-align: center; color: var(--text-muted);">No hay empresas registradas.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -2,9 +2,19 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <body>
-    <div th:fragment="sidebar" class="sidebar">
+    <div th:fragment="sidebar" class="sidebar" style="height: auto; min-height: 100vh;">
         <div class="logo">Zentinel</div>
         <a href="/" th:classappend="${currentUri == '/' ? 'active' : ''}" class="nav-item">Dashboard</a>
+
+        <!-- PANEL GLOBAL (Solo Super Admin) -->
+        <th:block sec:authorize="hasRole('SUPER_ADMIN')">
+            <div
+                style="padding: 1rem 1.5rem 0.5rem; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">
+                Zentinel Master</div>
+            <a href="/zentinel-master/empresas"
+                th:classappend="${#strings.startsWith(currentUri, '/zentinel-master') ? 'active' : ''}"
+                class="nav-item">Gestionar Empresas</a>
+        </th:block>
 
         <div
             style="padding: 1rem 1.5rem 0.5rem; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">
@@ -22,8 +32,8 @@
         <a href="/estadisticas" th:classappend="${#strings.startsWith(currentUri, '/estadisticas') ? 'active' : ''}"
             class="nav-item">Estadísticas</a>
 
-        <!-- Renderizar solo si es ADMIN -->
-        <th:block sec:authorize="hasRole('ADMIN')">
+        <!-- ADMINISTRACIÓN DE EMPRESA (Solo Admin de Empresa) -->
+        <th:block sec:authorize="hasRole('ADMIN_EMPRESA')">
             <div
                 style="padding: 1rem 1.5rem 0.5rem; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">
                 Administración</div>

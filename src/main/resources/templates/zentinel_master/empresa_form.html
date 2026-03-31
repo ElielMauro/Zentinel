@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Zentinel Master | Registro')}"></head>
+
+<body>
+
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+    <div class="main-content">
+        <div th:replace="~{fragments/topbar :: topbar('Zentinel Master', 'Registro de Nueva Empresa')}"></div>
+
+        <form th:action="@{/zentinel-master/empresas/guardar}" th:object="${empresa}" method="post">
+            <div class="form-grid">
+                <!-- Información de la Empresa -->
+                <div class="form-card">
+                    <h3>Datos de la Empresa</h3>
+                    <div class="input-group">
+                        <label>ID Manual (Según Diagrama)</label>
+                        <input type="number" th:field="*{id}" required placeholder="Ej. 100">
+                    </div>
+                    <div class="input-group">
+                        <label>Código Interno</label>
+                        <input type="text" th:field="*{codigo}" required placeholder="Ej. EMP-001">
+                    </div>
+                    <div class="input-group">
+                        <label>Razón Social</label>
+                        <input type="text" th:field="*{nombre}" required placeholder="Nombre de la Empresa">
+                    </div>
+                    <div class="input-group">
+                        <label>RFC</label>
+                        <input type="text" th:field="*{rfc}" required maxlength="13" placeholder="RFC123456ABC">
+                    </div>
+                    <div class="input-group">
+                        <label>Plan de Servicio</label>
+                        <select th:field="*{plan}">
+                            <option value="BASIC">Plan Básico</option>
+                            <option value="PREMIUM">Plan Premium</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Status</label>
+                        <select th:field="*{activo}">
+                            <option th:value="true">Activo</option>
+                            <option th:value="false">Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Información del Administrador Inicial -->
+                <div class="form-card">
+                    <h3>Datos del Administrador Inicial</h3>
+                    <div class="input-group">
+                        <label>Nombre Completo</label>
+                        <input type="text" name="adminNombre" required placeholder="Nombre del Administrador">
+                    </div>
+                    <div class="input-group">
+                        <label>Email (Servirá como usuario)</label>
+                        <input type="email" name="adminEmail" required placeholder="admin@empresa.com">
+                    </div>
+                    <div class="input-group">
+                        <label>Contraseña Temporal</label>
+                        <input type="password" name="adminPassword" required placeholder="********">
+                    </div>
+                    
+                    <div style="margin-top: 2rem; padding: 1rem; background: rgba(79, 70, 229, 0.1); border-radius: 12px; border: 1px dashed var(--primary);">
+                        <p style="font-size: 0.85rem; color: var(--text-muted);">
+                            <strong>Nota:</strong> Al guardar, se crearán automáticamente los almacenes por defecto (Stock, Presupuesto, Reportes) para esta empresa.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a th:href="@{/zentinel-master/empresas}" class="btn-secondary">Cancelar</a>
+                <button type="submit" class="btn-primary">Guardar Empresa y Admin</button>
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>

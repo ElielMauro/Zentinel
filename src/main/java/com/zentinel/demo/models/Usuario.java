@@ -34,8 +34,12 @@ public class Usuario {
     @Column(length = 100, nullable = false)
     private String correo;
 
-    @Column(length = 20, nullable = false)
+    @Column(length = 50, nullable = false)
     private String rol;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "empresa_id")
+    private Empresa empresa;
 
     @Column(name = "fecha_alta", updatable = false)
     private LocalDateTime fechaAlta;
