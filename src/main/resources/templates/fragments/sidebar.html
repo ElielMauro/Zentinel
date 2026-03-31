@@ -18,19 +18,27 @@
 
         <div
             style="padding: 1rem 1.5rem 0.5rem; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">
-            Módulos</div>
+            Operaciones</div>
+        <!-- Productos, Entradas, Salidas: Visibles para ADMIN_EMPRESA, AUDITOR, OPERATIVO -->
         <a href="/productos" th:classappend="${#strings.startsWith(currentUri, '/productos') ? 'active' : ''}"
             class="nav-item">Productos</a>
         <a href="/entradas" th:classappend="${#strings.startsWith(currentUri, '/entradas') ? 'active' : ''}"
             class="nav-item">Entradas</a>
         <a href="/salidas" th:classappend="${#strings.startsWith(currentUri, '/salidas') ? 'active' : ''}"
             class="nav-item">Salidas</a>
-        <a href="/proveedores" th:classappend="${#strings.startsWith(currentUri, '/proveedores') ? 'active' : ''}"
-            class="nav-item">Proveedores</a>
-        <a href="/clientes" th:classappend="${#strings.startsWith(currentUri, '/clientes') ? 'active' : ''}"
-            class="nav-item">Clientes</a>
-        <a href="/estadisticas" th:classappend="${#strings.startsWith(currentUri, '/estadisticas') ? 'active' : ''}"
-            class="nav-item">Estadísticas</a>
+
+        <!-- Proveedores, Clientes, Estadísticas: Visibles para ADMIN_EMPRESA, AUDITOR -->
+        <th:block sec:authorize="hasAnyRole('ADMIN_EMPRESA', 'AUDITOR')">
+            <div style="padding: 1rem 1.5rem 0.5rem; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">
+                Reportes y Catálogos</div>
+            <a href="/proveedores" th:classappend="${#strings.startsWith(currentUri, '/proveedores') ? 'active' : ''}"
+                class="nav-item">Proveedores</a>
+            <a href="/clientes" th:classappend="${#strings.startsWith(currentUri, '/clientes') ? 'active' : ''}"
+                class="nav-item">Clientes</a>
+            <a href="/estadisticas" th:classappend="${#strings.startsWith(currentUri, '/estadisticas') ? 'active' : ''}"
+                class="nav-item">Estadísticas</a>
+        </th:block>
+
 
         <!-- ADMINISTRACIÓN DE EMPRESA (Solo Admin de Empresa) -->
         <th:block sec:authorize="hasRole('ADMIN_EMPRESA')">
