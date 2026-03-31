@@ -30,59 +30,65 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         // 1. Crear Empresa si no existe
-        if (empresaRepository.count() == 0) {
-            Empresa emp = new Empresa();
+        Empresa emp = empresaRepository.findById(1).orElse(null);
+        if (emp == null) {
+            emp = new Empresa();
             emp.setId(1);
             emp.setCodigo("ZENT01");
             emp.setNombre("Zentinel S.A.");
             emp.setNombreCompleto("Zentinel Logística S.A. de C.V.");
             emp.setRfc("ZENT010101ABC");
+            emp.setActivo(true);
             empresaRepository.save(emp);
         }
 
-        // 2. Crear Almacén si no existe
+        // 2. Crear Almacenes por defecto
         if (almacenRepository.count() == 0) {
-            Almacen alm = new Almacen();
-            alm.setId(1);
-            alm.setNombre("Almacén Central");
-            alm.setUbicacion("Planta Principal");
-            alm.setEmpresa(empresaRepository.findById(1).orElse(null));
-            almacenRepository.save(alm);
+            String[] almacenes = {"Stock General", "Presupuesto", "Reportes y Mermas"};
+            for (int i = 0; i < almacenes.length; i++) {
+                Almacen alm = new Almacen();
+                alm.setId(i + 1);
+                alm.setNombre(almacenes[i]);
+                alm.setUbicacion("Planta Principal");
+                alm.setEmpresa(emp);
+                almacenRepository.save(alm);
+            }
         }
 
-        // 3. Crear Área si no existe
+        // 3. Crear 9 Áreas funcionales
         if (areaRepository.count() == 0) {
-            Area area = new Area();
-            area.setNombre("Mantenimiento");
-            area.setDescripcion("Departamento de mantenimiento industrial");
-            areaRepository.save(area);
+            String[] areas = {"Mantenimiento", "Producción", "Ventas", "Recursos Humanos", "Sistemas", "Logística", "Calidad", "Dirección", "Almacén Central"};
+            for (String nombreArea : areas) {
+                Area area = new Area();
+                area.setNombre(nombreArea);
+                area.setDescripcion("Departamento de " + nombreArea);
+                areaRepository.save(area);
+            }
         }
 
         // 4. Crear Usuarios
         if (usuarioRepository.count() == 0) {
-            // Admin
-            Usuario admin = new Usuario();
-            admin.setUsuario("admin");
-            admin.setPassword("admin123");
-            admin.setNombre("Administrador");
-            admin.setApellidoPaterno("Zentinel");
-            admin.setCorreo("admin@zentinel.com");
-            admin.setRol("ADMIN");
-            usuarioService.save(admin);
+            Usuario superAdmin = new Usuario();
+            superAdmin.setUsuario("superadmin");
+            superAdmin.setPassword("Zentinel2024!");
+            superAdmin.setNombre("Super");
+            superAdmin.setApellidoPaterno("Admin");
+            superAdmin.setCorreo("master@zentinel.com");
+            superAdmin.setRol("SUPER_ADMIN");
+            superAdmin.setEmpresa(emp);
+            usuarioService.save(superAdmin);
 
-            // Mostrador
-            Usuario mostrador = new Usuario();
-            mostrador.setUsuario("mostrador");
-            mostrador.setPassword("mostrador123");
-            mostrador.setNombre("Operador");
-            mostrador.setApellidoPaterno("Ventas");
-            mostrador.setCorreo("ventas@zentinel.com");
-            mostrador.setRol("MOSTRADOR");
-            // Asignar al almacén 1
-            mostrador.getAlmacenes().add(almacenRepository.findById(1).orElse(null));
-            usuarioService.save(mostrador);
+            Usuario adminEmpresa = new Usuario();
+            adminEmpresa.setUsuario("admin");
+            adminEmpresa.setPassword("admin123");
+            adminEmpresa.setNombre("Administrador");
+            adminEmpresa.setApellidoPaterno("Empresa");
+            adminEmpresa.setCorreo("admin@zentinel.com");
+            adminEmpresa.setRol("ADMIN_EMPRESA");
+            adminEmpresa.setEmpresa(emp);
+            usuarioService.save(adminEmpresa);
 
-            System.out.println("Usuarios de prueba creados.");
+            System.out.println("Base de datos inicializada para pruebas reales.");
         }
     }
 }
