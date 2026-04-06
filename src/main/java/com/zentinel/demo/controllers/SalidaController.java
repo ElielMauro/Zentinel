@@ -39,26 +39,31 @@ public class SalidaController {
     }
 
     @GetMapping
-    public String listarSalidas(@RequestParam(defaultValue = "0") int page, Model model) {
-        // En un escenario de producción, se usaría un repositorio PagingAndSortingRepository.
-        // Para simplificar, obtenemos la lista y sublistamos, o mandamos la lista entera si es pequeña.
-        model.addAttribute("listaSalidas", salidaService.findAll());
+    public String listarSalidas(Model model, jakarta.servlet.http.HttpSession session) {
+        Integer empresaId = com.zentinel.demo.security.TenantContext.getCurrentEmpresaId(session);
+        if (empresaId != null) {
+            model.addAttribute("listaSalidas", salidaService.findByEmpresaId(empresaId));
+        } else {
+            model.addAttribute("listaSalidas", new ArrayList<>());
+        }
         return "salidas";
     }
 
 
     @GetMapping("/nueva")
     public String nuevaSalida(Model model, Principal principal, jakarta.servlet.http.HttpSession session) {
+        Integer empresaId = com.zentinel.demo.security.TenantContext.getCurrentEmpresaId(session);
+        if (empresaId == null) return "redirect:/login";
+
         Usuario currentUser = usuarioRepository.findById(principal.getName()).orElse(null);
-        Almacen activeAlmacen = (Almacen) session.getAttribute("activeAlmacen");
+        Almacen activeAlmacen = com.zentinel.demo.security.TenantContext.getActiveAlmacen(session);
 
         model.addAttribute("salida", new Salida());
-        model.addAttribute("productos", productoService.findAll());
-        model.addAttribute("almacenes", almacenService.findByUser(currentUser));
-        model.addAttribute("areas", areaRepository.findAll());
-        model.addAttribute("usuarios", usuarioRepository.findAll());
-        // El que atiende puede ser cualquier usuario con rol ADMIN o MOSTRADOR
-        model.addAttribute("usuariosAtendio", usuarioRepository.findAll()); 
+        model.addAttribute("productos", productoService.findByEmpresaId(empresaId));
+        model.addAttribute("almacenes", almacenService.findByUser(currentUser)); // findByUser ya filtra por empresa internamente si es ADMIN_EMPRESA
+        model.addAttribute("areas", areaRepository.findAll()); // Debería filtrarse por empresa también si hay tabla áreas
+        model.addAttribute("usuarios", usuarioRepository.findByEmpresa_Id(empresaId));
+        model.addAttribute("usuariosAtendio", usuarioRepository.findByEmpresa_Id(empresaId)); 
 
         if (activeAlmacen != null) {
             List<Inventario> inventarioFisico = salidaService.getInventarioByAlmacen(activeAlmacen);
@@ -87,7 +92,15 @@ public class SalidaController {
             @RequestParam("productoId") List<String> skus,
             @RequestParam("cantidad") List<java.math.BigDecimal> cantidades,
             @RequestParam(value = "precioUnitario", required = false) List<java.math.BigDecimal> precios,
-            Principal principal) {
+            Principal principal,
+            jakarta.servlet.http.HttpSession session) {
+
+        Integer empresaId = com.zentinel.demo.security.TenantContext.getCurrentEmpresaId(session);
+        if (empresaId != null) {
+            com.zentinel.demo.models.Empresa emp = new com.zentinel.demo.models.Empresa();
+            emp.setId(empresaId);
+            salida.setEmpresa(emp);
+        }
 
         // Si no se asignó alguien que atendió en el modelo, usar el usuario logueado
         if (salida.getUsuarioAtendio() == null) {

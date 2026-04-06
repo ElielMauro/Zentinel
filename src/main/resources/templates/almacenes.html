@@ -9,6 +9,16 @@
         <div th:replace="~{fragments/topbar :: topbar('Gestión de Almacenes', 'Configuración de sedes y bodegas')}">
         </div>
 
+        <!-- Alertas de éxito/error -->
+        <div th:if="${mensaje}" style="margin-bottom: 1.5rem; padding: 1rem; border-radius: 12px; background: var(--success-bg); border: 1px solid var(--success-border); color: var(--success); display: flex; align-items: center; gap: 0.8rem;">
+            <span>✅</span>
+            <span th:text="${mensaje}"></span>
+        </div>
+        <div th:if="${error}" style="margin-bottom: 1.5rem; padding: 1rem; border-radius: 12px; background: var(--danger-bg); border: 1px solid var(--danger-border); color: #F87171; display: flex; align-items: center; gap: 0.8rem;">
+            <span>❌</span>
+            <span th:text="${error}"></span>
+        </div>
+
         <div style="margin-bottom: 2rem; display: flex; justify-content: flex-end;">
             <a th:href="@{/almacenes/nuevo}" class="btn-add">+ Nuevo Almacén</a>
         </div>
@@ -23,6 +33,7 @@
                         <th>Ubicación</th>
                         <th>Empresa</th>
                         <th>Estado</th>
+                        <th style="text-align: center;">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -34,6 +45,16 @@
                         <td>
                             <span th:class="${'badge ' + (a.activo ? 'badge-success' : 'badge-danger')}"
                                 th:text="${a.activo ? 'Activo' : 'Inactivo'}"></span>
+                        </td>
+                        <td style="text-align: center;">
+                            <div style="display: flex; justify-content: center; gap: 0.5rem;">
+                                <a th:href="@{/almacenes/editar/{id}(id=${a.id})}" class="btn-ghost" title="Editar" style="font-size: 1.1rem; color: var(--text-muted);">✏️</a>
+                                <a th:href="@{/almacenes/eliminar/{id}(id=${a.id})}" 
+                                   class="btn-ghost" 
+                                   title="Eliminar" 
+                                   style="font-size: 1.1rem; color: #F87171;"
+                                   onclick="return confirm('¿Estás seguro de que deseas eliminar este almacén? Esta acción no se puede deshacer.')">🗑️</a>
+                            </div>
                         </td>
                     </tr>
                 </tbody>

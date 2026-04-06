@@ -39,22 +39,30 @@ public class EntradaController {
     }
 
     @GetMapping
-    public String list(Model model) {
-        model.addAttribute("listaEntradas", entradaService.findAll());
+    public String list(Model model, jakarta.servlet.http.HttpSession session) {
+        Integer empresaId = com.zentinel.demo.security.TenantContext.getCurrentEmpresaId(session);
+        if (empresaId != null) {
+            model.addAttribute("listaEntradas", entradaService.findByEmpresaId(empresaId));
+        } else {
+            model.addAttribute("listaEntradas", new ArrayList<>());
+        }
         return "entradas";
     }
 
     @GetMapping("/nueva")
     public String form(Model model, Principal principal, jakarta.servlet.http.HttpSession session) {
+        Integer empresaId = com.zentinel.demo.security.TenantContext.getCurrentEmpresaId(session);
+        if (empresaId == null) return "redirect:/login";
+
         Usuario currentUser = usuarioRepository.findById(principal.getName()).orElse(null);
-        Almacen activeAlmacen = (Almacen) session.getAttribute("activeAlmacen");
+        Almacen activeAlmacen = com.zentinel.demo.security.TenantContext.getActiveAlmacen(session);
 
         Entrada entrada = new Entrada();
         entrada.setFechaFactura(LocalDateTime.now());
         model.addAttribute("entrada", entrada);
-        model.addAttribute("proveedores", proveedorRepository.findAll());
-        model.addAttribute("almacenes", almacenService.findByUser(currentUser));
-        model.addAttribute("productos", productoService.findAll());
+        model.addAttribute("proveedores", proveedorRepository.findAll()); // Debería filtrarse por empresa también si hay tabla proveedores
+        model.addAttribute("almacenes", almacenService.findByUser(currentUser)); // findByUser ya filtra por empresa internamente si es ADMIN_EMPRESA
+        model.addAttribute("productos", productoService.findByEmpresaId(empresaId));
 
         if (activeAlmacen != null) {
             model.addAttribute("inventarioActivo", salidaService.getInventarioByAlmacen(activeAlmacen));
@@ -77,7 +85,15 @@ public class EntradaController {
             @RequestParam("productoSku") List<String> skus,
             @RequestParam("cantidad") List<java.math.BigDecimal> cantidades,
             @RequestParam("precio") List<java.math.BigDecimal> precios,
-            Principal principal) {
+            Principal principal,
+            jakarta.servlet.http.HttpSession session) {
+
+        Integer empresaId = com.zentinel.demo.security.TenantContext.getCurrentEmpresaId(session);
+        if (empresaId != null) {
+            com.zentinel.demo.models.Empresa emp = new com.zentinel.demo.models.Empresa();
+            emp.setId(empresaId);
+            entrada.setEmpresa(emp);
+        }
 
         List<EntradaDetalle> detalles = new ArrayList<>();
         for (int i = 0; i < skus.size(); i++) {

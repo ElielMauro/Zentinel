@@ -117,4 +117,9 @@ public class SalidaService {
         }
         return savedSalida;
     }
+
+    public java.util.List<Salida> findByEmpresaId(Integer empresaId) {
+        return salidaRepository.findByEmpresa_Id(empresaId);
+    }
 }
+

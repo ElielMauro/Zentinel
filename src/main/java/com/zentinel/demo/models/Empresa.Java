@@ -38,4 +38,8 @@ public class Empresa {
 
     @Column(name = "fecha_alta")
     private java.time.LocalDateTime fechaAlta = java.time.LocalDateTime.now();
-}
+
+    @OneToMany(mappedBy = "empresa", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private java.util.List<Almacen> almacenes;
+}
+

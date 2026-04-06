@@ -31,4 +31,17 @@ public class AlmacenService {
         }
         return new ArrayList<>(usuario.getAlmacenes());
     }
+
+    public List<Almacen> findByEmpresaId(Integer empresaId) {
+        return almacenRepository.findByEmpresaId(empresaId);
+    }
+
+    public Almacen save(Almacen almacen) {
+        return almacenRepository.save(almacen);
+    }
+
+    public void deleteById(Integer id) {
+        almacenRepository.deleteById(id);
+    }
 }
+

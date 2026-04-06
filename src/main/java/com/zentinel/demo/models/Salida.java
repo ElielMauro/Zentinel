@@ -80,6 +80,10 @@ public class Salida {
     @OneToMany(mappedBy = "salida", cascade = CascadeType.ALL)
     private List<SalidaDetalle> detalles;
 
+    @ManyToOne
+    @JoinColumn(name = "empresa_id")
+    private Empresa empresa;
+
     @PrePersist
     protected void onCreate() {
         if (fecha == null) {

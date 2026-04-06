@@ -68,6 +68,10 @@ public class Entrada {
     @OneToMany(mappedBy = "entrada", cascade = CascadeType.ALL)
     private List<EntradaDetalle> detalles;
 
+    @ManyToOne
+    @JoinColumn(name = "empresa_id")
+    private Empresa empresa;
+
     @PrePersist
     protected void onCreate() {
         if (fechaRecepcion == null) {

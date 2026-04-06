@@ -20,8 +20,13 @@ public class ProductoController {
     }
 
     @GetMapping
-    public String list(Model model) {
-        model.addAttribute("listaProductos", productoService.findAll());
+    public String list(Model model, jakarta.servlet.http.HttpSession session) {
+        Integer empresaId = com.zentinel.demo.security.TenantContext.getCurrentEmpresaId(session);
+        if (empresaId != null) {
+            model.addAttribute("listaProductos", productoService.findByEmpresaId(empresaId));
+        } else {
+            model.addAttribute("listaProductos", new java.util.ArrayList<>());
+        }
         return "productos";
     }
 
@@ -50,7 +55,15 @@ public class ProductoController {
     }
 
     @PostMapping("/guardar")
-    public String save(@ModelAttribute Producto producto) {
+    public String save(@ModelAttribute Producto producto, jakarta.servlet.http.HttpSession session) {
+        if (producto.getEmpresa() == null) {
+            Integer empresaId = com.zentinel.demo.security.TenantContext.getCurrentEmpresaId(session);
+            if (empresaId != null) {
+                com.zentinel.demo.models.Empresa emp = new com.zentinel.demo.models.Empresa();
+                emp.setId(empresaId);
+                producto.setEmpresa(emp);
+            }
+        }
         productoService.save(producto);
         return "redirect:/productos";
     }
