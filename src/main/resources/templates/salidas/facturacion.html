@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Zentinel | Facturación y Cierre de Folios')}"></head>
+
+<body>
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/topbar :: topbar('Facturación Agrupada', 'Consolidación de folios bajo el mismo reporte')}"></div>
+
+        <!-- Alertas -->
+        <div th:if="${mensaje}" style="margin-bottom: 1.5rem; padding: 1rem; border-radius: 12px; background: var(--success-bg); border: 1px solid var(--success-border); color: var(--success); display: flex; align-items: center; gap: 0.8rem;">
+            <span>✅</span>
+            <span th:text="${mensaje}"></span>
+        </div>
+
+        <div class="form-card full-width" style="max-width: 900px; margin: 0 auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
+                <div>
+                    <h2 style="margin: 0; color: white;">Reporte / Presupuesto: <span th:text="${numReporte}" style="color: var(--primary);"></span></h2>
+                    <p style="margin: 0.5rem 0 0; color: var(--text-muted); font-size: 0.9rem;">Se encontraron <strong th:text="${salidas.size()}"></strong> salidas (vales) asociadas a este número de reporte.</p>
+                </div>
+                <div>
+                    <button class="btn-secondary" onclick="window.print()" style="margin-right: 0.5rem;">🖨️ Imprimir</button>
+                    <!-- Formulario para Cerrar Reporte -->
+                    <form th:if="${!yaFacturado}" th:action="@{/salidas/facturar/{numReporte}(numReporte=${numReporte})}" method="post" style="display: inline;" onsubmit="return confirm('¿Confirmas el cierre para facturación? Las salidas no podrán editarse ni añadirse nuevas a este reporte.');">
+                        <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, #10B981, #059669); box-shadow: 0 4px 15px -3px rgba(16, 185, 129, 0.4);">🔒 Cerrar Factura</button>
+                    </form>
+                    <span th:if="${yaFacturado}" class="badge badge-success" style="font-size: 1rem; padding: 0.5rem 1rem;">CERRADO Y FACTURADO</span>
+                </div>
+            </div>
+
+            <!-- Resumen Financiero -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem;">
+                <div style="background: rgba(15,23,42,0.4); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); text-align: center;">
+                    <p style="margin: 0 0 0.5rem; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">Subtotal Total</p>
+                    <h3 style="margin: 0; font-size: 1.8rem; font-weight: 600;">$<span th:text="${#numbers.formatDecimal(subtotalSuma, 1, 'COMMA', 2, 'POINT')}"></span></h3>
+                </div>
+                <div style="background: rgba(15,23,42,0.4); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); text-align: center;">
+                    <p style="margin: 0 0 0.5rem; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">I.V.A Total</p>
+                    <h3 style="margin: 0; font-size: 1.8rem; font-weight: 600; color: #F59E0B;">$<span th:text="${#numbers.formatDecimal(ivaSuma, 1, 'COMMA', 2, 'POINT')}"></span></h3>
+                </div>
+                <div style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(168, 85, 247, 0.1)); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(79, 70, 229, 0.2); text-align: center;">
+                    <p style="margin: 0 0 0.5rem; var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">Total a Facturar</p>
+                    <h3 style="margin: 0; font-size: 2rem; font-weight: 700; color: white;">$<span th:text="${#numbers.formatDecimal(totalSuma, 1, 'COMMA', 2, 'POINT')}"></span></h3>
+                </div>
+            </div>
+
+            <!-- Tabla de Folios Relacionados -->
+            <h4 style="margin-bottom: 1rem; color: var(--text-muted);">Folios Involucrados</h4>
+            <table class="premium-table" style="font-size: 0.9rem;">
+                <thead>
+                    <tr>
+                        <th>Folio</th>
+                        <th>Fecha</th>
+                        <th>Departamento</th>
+                        <th>Solicitante</th>
+                        <th style="text-align: right;">Total</th>
+                        <th style="text-align: center;">Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="s : ${salidas}">
+                        <td th:text="${s.folioFormateado != null ? s.folioFormateado : s.folio}"></td>
+                        <td th:text="${#temporals.format(s.fecha, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td th:text="${s.departamento}"></td>
+                        <td th:text="${s.nombreSolicitante}"></td>
+                        <td style="text-align: right; font-weight: 600;">$<span th:text="${#numbers.formatDecimal(s.total, 1, 'COMMA', 2, 'POINT')}"></span></td>
+                        <td style="text-align: center;">
+                            <a th:href="@{/salidas/reporte/{id}(id=${s.folio})}" class="btn-ghost" title="Ver Detalle" target="_blank">👁️ Ver</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="print-only" style="margin-top: 3rem; text-align: center; font-size: 0.8rem; color: #555;">
+                <p>_____________________________________</p>
+                <p>Firma de Conformidad - Contabilidad/Dirección</p>
+            </div>
+        </div>
+    </div>
+    
+    <style>
+        .print-only { display: none; }
+        @media print {
+            body { 
+                background: white !important; 
+                color: black !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .sidebar, .topbar, form, button, .btn-ghost { display: none !important; }
+            .print-only { display: block; }
+            .form-card { border: none !important; box-shadow: none !important; padding: 0 !important; }
+            * { text-shadow: none !important; }
+        }
+    </style>
+</body>
+</html>

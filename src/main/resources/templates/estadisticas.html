@@ -1,34 +1,254 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="~{fragments/head :: head('Zentinel | Estadisticas')}"></head>
+<head th:replace="~{fragments/head :: head('Zentinel | Estadísticas')}"></head>
 
 <body>
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+<div class="main-content">
+    <div th:replace="~{fragments/topbar :: topbar('Estadísticas', 'Análisis operativo y financiero de tu inventario')}"></div>
 
-    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
-
-    <div class="main-content">
-        <div th:replace="~{fragments/topbar :: topbar('Estadísticas', 'Resúmenes de movimientos e inventario')}">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <!-- KPI: Valor Inventario -->
+        <div class="stat-card" style="background: linear-gradient(135deg, rgba(79,70,229,0.15), rgba(168,85,247,0.15)); border: 1px solid rgba(79,70,229,0.3);">
+            <p class="stat-label">💰 Valor del Inventario</p>
+            <h2 class="stat-value">$<span th:text="${#numbers.formatDecimal(valorInventario, 1, 'COMMA', 2, 'POINT')}">0.00</span></h2>
         </div>
-
-        <div
-            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-            <div
-                style="background: var(--surface); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 2rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-                <h3 style="margin-top: 0; color: var(--text-muted); font-size: 1rem;">Valor del Inventario</h3>
-                <p style="font-size: 2.5rem; font-weight: 700; margin: 0;">$--</p>
-            </div>
+        <!-- KPI: Salidas del Mes -->
+        <div class="stat-card" style="background: linear-gradient(135deg, rgba(239,68,68,0.12), rgba(245,158,11,0.12)); border: 1px solid rgba(239,68,68,0.25);">
+            <p class="stat-label">📦 Salidas del Mes</p>
+            <h2 class="stat-value" th:text="${salidasMes}">0</h2>
+            <p class="stat-sub">Monto: $<span th:text="${#numbers.formatDecimal(totalSalidasMesMonto, 1, 'COMMA', 2, 'POINT')}">0.00</span></p>
         </div>
-
-        <div
-            style="padding: 3rem; background: var(--surface); border-radius: 16px; border: 1px dashed rgba(255,255,255,0.15); text-align: center; color: var(--text-muted);">
-            <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.4;">📊</div>
-            <h3 style="margin: 0 0 0.5rem;">Módulo en construcción</h3>
-            <p style="margin: 0;">Aquí se visualizarán gráficos y resúmenes de movimientos, stock valorizado e histórico
-                de transacciones.</p>
+        <!-- KPI: Entradas del mes -->
+        <div class="stat-card" style="background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(6,182,212,0.12)); border: 1px solid rgba(16,185,129,0.25);">
+            <p class="stat-label">🚛 Entradas del Mes</p>
+            <h2 class="stat-value" th:text="${entradasMes}">0</h2>
+        </div>
+        <!-- KPI: Top Depto -->
+        <div class="stat-card" style="background: linear-gradient(135deg, rgba(245,158,11,0.12), rgba(239,68,68,0.12)); border: 1px solid rgba(245,158,11,0.25);">
+            <p class="stat-label">🏆 Dpto. Mayor Consumo</p>
+            <h2 class="stat-value" style="font-size: 1.4rem;" th:text="${topDepto}">—</h2>
         </div>
     </div>
 
-</body>
+    <!-- GRÁFICAS -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
 
+        <!-- Gráfica: Consumo por Departamento -->
+        <div class="chart-card">
+            <h4 class="chart-title">💳 Gasto por Departamento (Mes Actual)</h4>
+            <canvas id="chartDepartamentos" height="300"></canvas>
+        </div>
+
+        <!-- Gráfica: Top 25 (barra horizontal) -->
+        <div class="chart-card">
+            <h4 class="chart-title">📊 Top 25 Productos Más Usados</h4>
+            <canvas id="chartTop25" height="300"></canvas>
+        </div>
+    </div>
+
+    <!-- Búsqueda de producto por SKU -->
+    <div class="form-card full-width" style="margin-bottom: 2rem;">
+        <h4 class="chart-title">🔍 Distribución de un Producto por Departamento</h4>
+        <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.9rem;">Ingresa el código SKU de un producto para ver en qué departamentos se ha distribuido.</p>
+        <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem;">
+            <input type="text" id="skuInput" placeholder="Ej. PROD-001" style="max-width: 300px; padding: 0.7rem 1rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: white; font-size: 0.95rem; outline: none;">
+            <button onclick="buscarProducto()" class="btn-primary" id="btnBuscar">Buscar</button>
+        </div>
+        <div id="productoChartContainer" style="display: none;">
+            <h5 id="productoTitulo" style="color: var(--primary); margin-bottom: 1rem;"></h5>
+            <div style="max-width: 500px; margin: 0 auto;">
+                <canvas id="chartProducto" height="350"></canvas>
+            </div>
+            <p id="noDataMsg" style="display:none; text-align:center; color: var(--text-muted); padding: 2rem;">No se encontraron distribuciones para este producto.</p>
+        </div>
+    </div>
+
+    <!-- Tabla Top 25 -->
+    <div class="form-card full-width" style="margin-bottom: 2rem;">
+        <h4 class="chart-title" style="margin-bottom: 1.5rem;">📋 Top 25 Productos — Detalle</h4>
+        <table class="premium-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>SKU</th>
+                    <th>Nombre del Producto</th>
+                    <th style="text-align: right;">Cantidad Salida Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="p, iter : ${top25}">
+                    <td th:text="${iter.index + 1}" style="color: var(--text-muted);"></td>
+                    <td><span style="font-family: monospace; color: var(--primary);" th:text="${p.sku}"></span></td>
+                    <td th:text="${p.nombre}"></td>
+                    <td style="text-align: right; font-weight: 600;" th:text="${p.cantidad}"></td>
+                </tr>
+                <tr th:if="${top25.isEmpty()}">
+                    <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">Sin datos de salidas aún.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Tabla Stock Crítico -->
+    <div class="form-card full-width" th:if="${!stockCritico.isEmpty()}">
+        <h4 class="chart-title" style="color: #EF4444; margin-bottom: 1.5rem;">⚠️ Alertas de Stock Crítico</h4>
+        <table class="premium-table">
+            <thead>
+                <tr>
+                    <th>SKU</th>
+                    <th>Producto</th>
+                    <th>Almacén</th>
+                    <th style="text-align: center;">Stock Actual</th>
+                    <th style="text-align: center;">Mínimo</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="alerta : ${stockCritico}" style="background: rgba(239,68,68,0.05);">
+                    <td><span style="font-family: monospace; color: #EF4444;" th:text="${alerta.sku}"></span></td>
+                    <td th:text="${alerta.nombre}"></td>
+                    <td th:text="${alerta.almacen}"></td>
+                    <td style="text-align: center; color: #EF4444; font-weight: 700;" th:text="${alerta.cantidadActual}"></td>
+                    <td style="text-align: center; color: var(--text-muted);" th:text="${alerta.minimoStock}"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script th:inline="javascript">
+    const deptoLabels = /*[[${deptoLabels}]]*/ [];
+    const deptoData   = /*[[${deptoData}]]*/ [];
+    const top25Labels = /*[[${top25Labels}]]*/ [];
+    const top25Data   = /*[[${top25Data}]]*/ [];
+
+    const palette = [
+        '#6366F1','#8B5CF6','#EC4899','#F59E0B','#10B981',
+        '#3B82F6','#EF4444','#14B8A6','#F97316','#84CC16',
+        '#06B6D4','#A855F7','#22D3EE','#E11D48','#7C3AED'
+    ];
+
+    // ─── Gráfica Departamentos ──────────────────────────────────────────────────
+    new Chart(document.getElementById('chartDepartamentos'), {
+        type: 'doughnut',
+        data: {
+            labels: deptoLabels.length > 0 ? deptoLabels : ['Sin datos'],
+            datasets: [{
+                data: deptoData.length > 0 ? deptoData : [1],
+                backgroundColor: palette,
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom', labels: { color: '#94a3b8', padding: 12, font: { size: 12 } } },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => ` $${parseFloat(ctx.parsed).toLocaleString('es-MX', { minimumFractionDigits: 2 })}`
+                    }
+                }
+            }
+        }
+    });
+
+    // ─── Gráfica Top 25 ────────────────────────────────────────────────────────
+    new Chart(document.getElementById('chartTop25'), {
+        type: 'bar',
+        data: {
+            labels: top25Labels.length > 0 ? top25Labels : ['Sin datos'],
+            datasets: [{
+                label: 'Cantidad',
+                data: top25Data.length > 0 ? top25Data : [0],
+                backgroundColor: 'rgba(99, 102, 241, 0.8)',
+                borderRadius: 6,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                y: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } }
+            }
+        }
+    });
+
+    // ─── Búsqueda por SKU ─────────────────────────────────────────────────────
+    let productoChart = null;
+    function buscarProducto() {
+        const sku = document.getElementById('skuInput').value.trim();
+        if (!sku) return;
+
+        document.getElementById('btnBuscar').textContent = 'Buscando...';
+        fetch('/estadisticas/producto/' + encodeURIComponent(sku))
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('btnBuscar').textContent = 'Buscar';
+                const container = document.getElementById('productoChartContainer');
+                const noDataMsg = document.getElementById('noDataMsg');
+                container.style.display = 'block';
+
+                if (data.error || !data.labels || data.labels.length === 0) {
+                    noDataMsg.style.display = 'block';
+                    document.getElementById('productoTitulo').textContent = '';
+                    if (productoChart) { productoChart.destroy(); productoChart = null; }
+                    return;
+                }
+
+                noDataMsg.style.display = 'none';
+                document.getElementById('productoTitulo').textContent = '📦 ' + data.productoNombre;
+
+                if (productoChart) productoChart.destroy();
+                productoChart = new Chart(document.getElementById('chartProducto'), {
+                    type: 'pie',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            data: data.data,
+                            backgroundColor: palette,
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { color: '#94a3b8', padding: 12 } },
+                            tooltip: {
+                                callbacks: {
+                                    label: ctx => ` ${ctx.label}: ${ctx.parsed} unidades`
+                                }
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(() => { document.getElementById('btnBuscar').textContent = 'Buscar'; });
+    }
+
+    document.getElementById('skuInput').addEventListener('keydown', e => {
+        if (e.key === 'Enter') buscarProducto();
+    });
+</script>
+
+<style>
+    .stat-card  { background: var(--surface); border-radius: 16px; padding: 1.5rem; }
+    .stat-label { color: var(--text-muted); font-size: 0.85rem; margin: 0 0 0.5rem; }
+    .stat-value { margin: 0; font-size: 2rem; font-weight: 700; }
+    .stat-sub   { margin: 0.3rem 0 0; font-size: 0.85rem; color: var(--text-muted); }
+    .chart-card { background: var(--surface); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 1.5rem; }
+    .chart-title{ margin: 0 0 1rem; font-size: 1rem; }
+    @media (max-width: 768px) {
+        .stat-card { padding: 1rem; }
+        .stat-value { font-size: 1.4rem; }
+        div[style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; }
+    }
+</style>
+</body>
 </html>

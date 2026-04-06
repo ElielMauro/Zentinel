@@ -121,5 +121,10 @@ public class SalidaService {
     public java.util.List<Salida> findByEmpresaId(Integer empresaId) {
         return salidaRepository.findByEmpresa_Id(empresaId);
     }
+
+    @Transactional
+    public Salida save(Salida salida) {
+        return salidaRepository.save(salida);
+    }
 }
 

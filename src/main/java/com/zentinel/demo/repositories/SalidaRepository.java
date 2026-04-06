@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository;
 public interface SalidaRepository extends JpaRepository<Salida, Integer> {
     java.util.List<Salida> findByEmpresa_Id(Integer empresaId);
     long countByEmpresa_IdAndFechaAfter(Integer empresaId, java.time.LocalDateTime date);
+    java.util.List<Salida> findByEmpresa_IdAndNumReporte(Integer empresaId, String numReporte);
 }

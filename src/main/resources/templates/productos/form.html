@@ -41,6 +41,18 @@
                             <input type="number" th:field="*{precioUnitario}" step="0.01" required>
                         </div>
                     </div>
+
+                    <div class="form-card full-width" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <h3 style="grid-column: 1 / -1;">Alertas de Stock</h3>
+                        <div class="input-group">
+                            <label>Stock Mínimo (Alerta Crítica)</label>
+                            <input type="number" th:field="*{minimoStock}" placeholder="Ej. 5">
+                        </div>
+                        <div class="input-group">
+                            <label>Stock Máximo (Alerta Exceso)</label>
+                            <input type="number" th:field="*{maximoStock}" placeholder="Ej. 100">
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-card full-width">
