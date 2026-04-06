@@ -51,5 +51,9 @@ public class Producto {
 
     @Column(nullable = false)
     private Boolean activo = true;
+
+    @ManyToOne
+    @JoinColumn(name = "empresa_id")
+    private Empresa empresa;
 }
 

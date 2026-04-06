@@ -50,4 +50,20 @@ public class ZentinelMasterController {
         empresaService.delete(id);
         return "redirect:/zentinel-master/empresas?deleted";
     }
+
+    @GetMapping("/empresas/seleccionar/{id}")
+    public String seleccionarEmpresa(@PathVariable Integer id, jakarta.servlet.http.HttpSession session) {
+        Empresa empresa = empresaService.findById(id);
+        if (empresa != null) {
+            session.setAttribute("currentEmpresa", empresa);
+            // Seleccionar el primer almacén de esta empresa para el contexto operativo
+            if (empresa.getAlmacenes() != null && !empresa.getAlmacenes().isEmpty()) {
+                session.setAttribute("activeAlmacen", empresa.getAlmacenes().get(0));
+            } else {
+                session.removeAttribute("activeAlmacen");
+            }
+        }
+        return "redirect:/"; // Redirigir al dashboard de esa empresa
+    }
 }
+

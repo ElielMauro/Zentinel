@@ -39,12 +39,17 @@ public class EmpresaService {
         }
         Empresa savedEmpresa = empresaRepository.save(empresa);
 
-        // 2. Crear Almacenes por defecto
-        crearAlmacenesDefault(savedEmpresa);
+        // 2. Crear Almacenes por defecto y capturarlos (Solo si no tiene ya)
+        java.util.List<Almacen> defaultAlmacenes;
+        if (savedEmpresa.getAlmacenes() == null || savedEmpresa.getAlmacenes().isEmpty()) {
+            defaultAlmacenes = crearAlmacenesDefault(savedEmpresa);
+        } else {
+            defaultAlmacenes = new java.util.ArrayList<>(savedEmpresa.getAlmacenes());
+        }
 
         // 3. Crear Primer Administrador
         Usuario admin = new Usuario();
-        admin.setUsuario(adminEmail); // Usamos el email como username por simplicidad o el que se provea
+        admin.setUsuario(adminEmail);
         admin.setNombre(adminNombre);
         admin.setApellidoPaterno("Admin");
         admin.setCorreo(adminEmail);
@@ -52,27 +57,29 @@ public class EmpresaService {
         admin.setRol("ADMIN_EMPRESA");
         admin.setEmpresa(savedEmpresa);
         admin.setActivo(true);
+        
+        // 4. Vincular el admin a los almacenes creados por defecto
+        admin.getAlmacenes().addAll(defaultAlmacenes);
+        
         usuarioRepository.save(admin);
-
-        // TODO: Enviar correo de bienvenida
 
         return savedEmpresa;
     }
 
-    private void crearAlmacenesDefault(Empresa empresa) {
-        String[] nombres = {"Stock", "Presupuesto", "Reportes"};
+    private java.util.List<Almacen> crearAlmacenesDefault(Empresa empresa) {
+        String[] nombres = {"Almacén General", "Bodega Secundaria", "Mermas"};
+        java.util.List<Almacen> creados = new java.util.ArrayList<>();
         for (int i = 0; i < nombres.length; i++) {
             Almacen almacen = new Almacen();
-            // Generar ID único para almacén si no es auto-incremental
-            // En el schema actual parece que ID de almacén es INT PRIMARY KEY (manual)
-            // Necesito verificar si es SERIAL o no.
+            // Generar ID único basado en empresa_id y un offset
             almacen.setId(empresa.getId() * 100 + i + 1); 
             almacen.setNombre(nombres[i]);
             almacen.setUbicacion("Principal");
             almacen.setEmpresa(empresa);
             almacen.setActivo(true);
-            almacenRepository.save(almacen);
+            creados.add(almacenRepository.save(almacen));
         }
+        return creados;
     }
 
     @Transactional

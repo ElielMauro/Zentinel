@@ -40,4 +40,8 @@ public class UsuarioService {
             usuarioRepository.save(u);
         });
     }
+    public java.util.List<Usuario> findByEmpresaId(Integer empresaId) {
+        return usuarioRepository.findByEmpresa_Id(empresaId);
+    }
 }
+

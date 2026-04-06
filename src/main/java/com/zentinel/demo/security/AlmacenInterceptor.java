@@ -13,10 +13,16 @@ public class AlmacenInterceptor implements HandlerInterceptor {
             throws Exception {
         String uri = request.getRequestURI();
 
-        // Excluir rutas públicas y selector
+        // Excluir rutas públicas, selector y panel maestro
         if (uri.startsWith("/css") || uri.startsWith("/js") || uri.startsWith("/img") ||
                 uri.startsWith("/login") || uri.startsWith("/error") || uri.startsWith("/almacen-selector") ||
-                uri.equals("/logout")) {
+                uri.startsWith("/zentinel-master") || uri.equals("/logout")) {
+            return true;
+        }
+
+        // Si es SUPER_ADMIN, no obligar a seleccionar almacén para navegar por lo general
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_SUPER_ADMIN"))) {
             return true;
         }
 

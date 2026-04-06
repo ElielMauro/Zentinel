@@ -40,7 +40,18 @@
             <a href="/usuarios" th:classappend="${#strings.startsWith(currentUri, '/usuarios') ? 'active' : ''}"
                 class="nav-item">Usuarios</a>
             <a href="/almacenes" th:classappend="${#strings.startsWith(currentUri, '/almacenes') ? 'active' : ''}"
-                class="nav-item">Almacenes</a>
+                class="nav-item">Gestionar Almacenes</a>
+            
+            <div style="margin-left: 1rem; margin-top: 0.5rem; border-left: 2px solid rgba(255,255,255,0.1); padding-left: 0.5rem;">
+                <div th:each="alm : ${listaAlmacenesSidebar}" 
+                     style="display: flex; justify-content: space-between; align-items: center; padding: 0.3rem 0.5rem; border-radius: 4px; font-size: 0.9rem; color: #a0aec0;">
+                    <span th:text="${alm.nombre}">Nombre Almacén</span>
+                    <a th:href="@{'/almacenes/editar/' + ${alm.id}}" 
+                       style="color: var(--primary); font-size: 0.75rem; text-decoration: none; opacity: 0.7;"
+                       onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">Editar</a>
+                </div>
+            </div>
+
             <a href="/categorias" th:classappend="${#strings.startsWith(currentUri, '/categorias') ? 'active' : ''}"
                 class="nav-item">Categorías</a>
             <a href="/configuracion"

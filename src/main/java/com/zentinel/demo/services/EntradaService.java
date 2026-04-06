@@ -78,4 +78,8 @@ public class EntradaService {
     public Entrada findById(Integer id) {
         return entradaRepository.findById(id).orElse(null);
     }
+
+    public List<Entrada> findByEmpresaId(Integer empresaId) {
+        return entradaRepository.findByEmpresa_Id(empresaId);
+    }
 }

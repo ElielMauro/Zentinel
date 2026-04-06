@@ -36,20 +36,42 @@ public class DashboardController {
     }
 
     @GetMapping({"", "/", "/index"})
-    public String dashboard(Model model) {
+    public String dashboard(Model model, jakarta.servlet.http.HttpServletRequest request, jakarta.servlet.http.HttpSession session) {
+        // Detectar si hay una empresa seleccionada en sesión (para Super Admin)
+        Empresa sessionEmpresa = (Empresa) session.getAttribute("currentEmpresa");
+        
+        // Si es Super Admin y no ha elegido empresa, mandarlo al panel maestro
+        if (request.isUserInRole("ROLE_SUPER_ADMIN") && sessionEmpresa == null) {
+            return "redirect:/zentinel-master/empresas";
+        }
+
+        // Determinar ID de empresa a usar
+        Integer empresaId = null;
+        if (sessionEmpresa != null) {
+            empresaId = sessionEmpresa.getId();
+        } else {
+            // Usuario normal: obtener de su perfil
+            Object principal = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            if (principal instanceof com.zentinel.demo.security.UsuarioPrincipal) {
+                empresaId = ((com.zentinel.demo.security.UsuarioPrincipal) principal).getEmpresaId();
+            }
+        }
+
+        if (empresaId == null) return "redirect:/login";
+
         LocalDateTime startOfMonth = LocalDateTime.now().with(TemporalAdjusters.firstDayOfMonth()).withHour(0).withMinute(0);
         
-        long totalProductos = productoRepository.count();
-        long entradasMes = entradaRepository.countByFechaRecepcionAfter(startOfMonth);
-        long salidasMes = salidaRepository.countByFechaAfter(startOfMonth);
+        long totalProductos = productoRepository.countByEmpresa_Id(empresaId);
+        long entradasMes = entradaRepository.countByEmpresa_IdAndFechaRecepcionAfter(empresaId, startOfMonth);
+        long salidasMes = salidaRepository.countByEmpresa_IdAndFechaAfter(empresaId, startOfMonth);
 
-        // Productos con bajo stock (< 5)
-        List<Inventario> lowStock = inventarioRepository.findAll().stream()
+        // Productos con bajo stock (< 5) filtrados por empresa
+        List<Inventario> lowStock = inventarioRepository.findByAlmacen_Empresa_Id(empresaId).stream()
                 .filter(i -> i.getCantidad().compareTo(new BigDecimal("5")) < 0)
                 .collect(Collectors.toList());
 
-        // Gastos por departamento
-        List<Salida> salidas = salidaRepository.findAll();
+        // Gastos por departamento filtrados por empresa
+        List<Salida> salidas = salidaRepository.findByEmpresa_Id(empresaId);
         Map<String, BigDecimal> gastosPorDepto = salidas.stream()
                 .filter(s -> !s.getCancelado())
                 .collect(Collectors.groupingBy(
@@ -57,15 +79,12 @@ public class DashboardController {
                         Collectors.reducing(BigDecimal.ZERO, Salida::getTotal, BigDecimal::add)
                 ));
 
-        // Áreas
-        List<Area> areas = areaRepository.findAll();
-
         model.addAttribute("totalProductos", totalProductos);
         model.addAttribute("entradasMes", entradasMes);
         model.addAttribute("salidasMes", salidasMes);
         model.addAttribute("lowStock", lowStock);
         model.addAttribute("gastosPorDepto", gastosPorDepto);
-        model.addAttribute("areas", areas);
+        model.addAttribute("currentEmpresa", sessionEmpresa);
 
         return "index";
     }

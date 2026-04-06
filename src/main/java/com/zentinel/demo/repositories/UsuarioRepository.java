@@ -9,4 +9,6 @@ import java.util.Optional;
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, String> {
     Optional<Usuario> findByUsuarioAndActivoTrue(String usuario);
+    java.util.List<Usuario> findByEmpresa_Id(Integer empresaId);
 }
+

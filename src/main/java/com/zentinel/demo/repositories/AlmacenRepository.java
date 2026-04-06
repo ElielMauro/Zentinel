@@ -7,4 +7,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AlmacenRepository extends JpaRepository<Almacen, Integer> {
+    java.util.List<Almacen> findByEmpresaId(Integer empresaId);
+    java.util.List<Almacen> findByEmpresaIdAndActivoTrue(Integer empresaId);
 }
+

@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProductoRepository extends JpaRepository<Producto, String> {
+    java.util.List<Producto> findByEmpresa_Id(Integer empresaId);
+    long countByEmpresa_Id(Integer empresaId);
 }

@@ -30,5 +30,9 @@ public class ProductoService {
         // TODO: Consultar Salidas recientes para estimar demanda
         return new java.math.BigDecimal("10.00"); // Valor por defecto
     }
+
+    public List<Producto> findByEmpresaId(Integer empresaId) {
+        return productoRepository.findByEmpresa_Id(empresaId);
+    }
 }
 
