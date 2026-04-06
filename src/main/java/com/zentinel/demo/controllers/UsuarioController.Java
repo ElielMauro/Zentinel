@@ -51,8 +51,18 @@ public class UsuarioController {
     }
 
     @PostMapping("/eliminar")
-    public String eliminarUsuario(@RequestParam String id) {
+    public String eliminarUsuario(@RequestParam String id, org.springframework.security.core.Authentication auth, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        boolean isSuperAdminReq = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_SUPER_ADMIN"));
+
+        Usuario targetUser = usuarioService.findById(id);
+        if (targetUser != null && "SUPER_ADMIN".equals(targetUser.getRol()) && !isSuperAdminReq) {
+            redirectAttributes.addFlashAttribute("error", "Seguridad: No tienes permiso para deshabilitar una cuenta de nivel maestro.");
+            return "redirect:/usuarios";
+        }
+
         usuarioService.delete(id);
+        redirectAttributes.addFlashAttribute("mensaje", "Usuario deshabilitado correctamente.");
         return "redirect:/usuarios";
     }
 }

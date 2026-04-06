@@ -156,4 +156,56 @@ public class SalidaController {
         model.addAttribute("salida", salida);
         return "salidas/reporte";
     }
+
+    @GetMapping("/facturacion/{numReporte}")
+    public String verFacturacionAgrupada(@PathVariable String numReporte, Model model, jakarta.servlet.http.HttpSession session) {
+        Integer empresaId = com.zentinel.demo.security.TenantContext.getCurrentEmpresaId(session);
+        List<Salida> salidas = salidaService.findByEmpresaId(empresaId).stream()
+                .filter(s -> numReporte.equals(s.getNumReporte()))
+                .collect(Collectors.toList());
+
+        if (salidas.isEmpty()) return "redirect:/salidas";
+
+        BigDecimal totalSuma = salidas.stream().map(Salida::getTotal).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal subtotalSuma = salidas.stream().map(Salida::getSubtotal).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal ivaSuma = salidas.stream().map(Salida::getIva).reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        boolean yaFacturado = salidas.stream().anyMatch(Salida::getFacturado);
+
+        model.addAttribute("salidas", salidas);
+        model.addAttribute("numReporte", numReporte);
+        model.addAttribute("totalSuma", totalSuma);
+        model.addAttribute("subtotalSuma", subtotalSuma);
+        model.addAttribute("ivaSuma", ivaSuma);
+        model.addAttribute("yaFacturado", yaFacturado);
+
+        return "salidas/facturacion";
+    }
+
+    @PostMapping("/facturar/{numReporte}")
+    public String procesarFacturacion(@PathVariable String numReporte, jakarta.servlet.http.HttpSession session, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        Integer empresaId = com.zentinel.demo.security.TenantContext.getCurrentEmpresaId(session);
+        List<Salida> salidas = salidaService.findByEmpresaId(empresaId).stream()
+                .filter(s -> numReporte.equals(s.getNumReporte()))
+                .collect(Collectors.toList());
+
+        for(Salida s : salidas) {
+            s.setFacturado(true);
+            salidaService.save(s);
+        }
+
+        redirectAttributes.addFlashAttribute("mensaje", "Reporte " + numReporte + " ha sido facturado y cerrado. No se podrán añadir más salidas a este reporte.");
+        return "redirect:/salidas/facturacion/" + numReporte;
+    }
+
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN_EMPRESA', 'ADMIN')")
+    @GetMapping("/editar/{folio}")
+    public String editarSalida(@PathVariable Integer folio, Model model) {
+        Salida salida = salidaService.findByFolio(folio);
+        if (salida == null || salida.getFacturado()) {
+            return "redirect:/salidas?error=facturado";
+        }
+        model.addAttribute("salida", salida);
+        return "salidas/form_edicion"; // Esta sería una vista especial solo para editar metadatos
+    }
 }

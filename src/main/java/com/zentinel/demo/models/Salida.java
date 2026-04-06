@@ -84,6 +84,9 @@ public class Salida {
     @JoinColumn(name = "empresa_id")
     private Empresa empresa;
 
+    @Column(nullable = false)
+    private Boolean facturado = false;
+
     @PrePersist
     protected void onCreate() {
         if (fecha == null) {

@@ -34,8 +34,15 @@ public class UsuarioService {
         return usuarioRepository.save(usuario);
     }
 
+    public Usuario findById(String username) {
+        return usuarioRepository.findById(username).orElse(null);
+    }
+
     public void delete(String username) {
         usuarioRepository.findById(username).ifPresent(u -> {
+            if ("SUPER_ADMIN".equals(u.getRol())) {
+                throw new RuntimeException("No se puede eliminar un actor base del sistema.");
+            }
             u.setActivo(false);
             usuarioRepository.save(u);
         });

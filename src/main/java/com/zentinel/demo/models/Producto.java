@@ -52,6 +52,12 @@ public class Producto {
     @Column(nullable = false)
     private Boolean activo = true;
 
+    @Column(name = "minimo_stock")
+    private Integer minimoStock;
+
+    @Column(name = "maximo_stock")
+    private Integer maximoStock;
+
     @ManyToOne
     @JoinColumn(name = "empresa_id")
     private Empresa empresa;
