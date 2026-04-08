@@ -14,6 +14,28 @@
                 <p>Complete los datos para generar el vale de salida.</p>
             </div>
 
+            <style>
+                .fancy-input {
+                    width: 100%;
+                    max-width: 140px;
+                    padding: 0.8rem;
+                    border-radius: 8px;
+                    border: 1px solid rgba(255,255,255,0.1);
+                    background: rgba(15,23,42,0.6);
+                    color: white;
+                    font-size: 1rem;
+                    text-align: center;
+                    transition: all 0.2s;
+                }
+                .fancy-input:focus {
+                    border-color: var(--primary);
+                    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+                    outline: none;
+                }
+                /* Arreglo responsivo para TomSelect */
+                .ts-wrapper { width: 100%; min-width: 250px; }
+            </style>
+
             <form th:action="@{/salidas/guardar}" th:object="${salida}" method="post" class="premium-form"
                 id="salidaForm">
                 <div class="form-grid">
@@ -63,7 +85,8 @@
                         </div>
                         <div class="input-group">
                             <label>Nombre de quien recibe (Solicitante)</label>
-                            <input type="text" th:field="*{nombreSolicitante}" placeholder="Nombre completo de quien se lleva el material">
+                            <input type="text" th:field="*{nombreSolicitante}"
+                                placeholder="Nombre completo de quien se lleva el material">
                         </div>
                         <div class="input-group">
                             <label>Personal que Atendió / Entregó</label>
@@ -78,9 +101,9 @@
 
                 <div class="form-card full-width">
                     <h3>Descripción / Motivo del Movimiento</h3>
-                    <textarea th:field="*{descripcion}" rows="5" class="full-description"
-                        placeholder="Escriba aquí el motivo detallado de la salida (este campo es amplio para su comodidad)..." 
-                        style="width: 100%; min-height: 120px; font-size: 1.1rem; padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(15,23,42,0.4); color: white;"></textarea>
+                    <textarea th:field="*{descripcion}" rows="3" cols="10"
+                        placeholder="Escriba aquí el motivo detallado de la salida (este campo es amplio para su comodidad)..."
+                        style="width: 100%; box-sizing: border-box; resize: vertical; min-height: 120px; font-size: 1.1rem; padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(15,23,42,0.4); color: white;"></textarea>
                 </div>
 
                 <!-- Detalle de Productos -->
@@ -107,8 +130,13 @@
                                     </select>
                                 </td>
                                 <td class="stock-feedback">---</td>
-                                <td><input type="number" name="precioUnitario" class="price-field" step="0.01" readonly style="background: rgba(255,255,255,0.05); color: var(--primary); font-weight: bold;"></td>
-                                <td><input type="number" name="cantidad" step="0.0001" min="0.0001" required></td>
+                                <td>
+                                    <input type="number" name="precioUnitario" class="price-field fancy-input" step="0.01" readonly
+                                        style="font-weight: bold;">
+                                </td>
+                                <td>
+                                    <input type="number" name="cantidad" class="fancy-input" step="0.0001" min="0.0001" required>
+                                </td>
                                 <td><button type="button" class="btn-icon delete-row">🗑️</button></td>
                             </tr>
                         </tbody>
@@ -128,8 +156,8 @@
     <script th:inline="javascript">
         /*<![CDATA[*/
         const inventoryMap = {};
-        const inventarioActivo = /*[[${inventarioActivo}]]*/ [];
-        
+        const inventarioActivo = /*[[${inventarioActivo}]]*/[];
+
         if (Array.isArray(inventarioActivo)) {
             inventarioActivo.forEach(inv => {
                 if (inv && inv.sku) {
@@ -146,8 +174,10 @@
                     field: "text",
                     direction: "asc"
                 },
-                placeholder: "Buscar producto...",
-                allowEmptyOption: true
+                placeholder: "Escribe para buscar...",
+                allowEmptyOption: true,
+                maxOptions: 10,
+                searchField: "text"
             });
         }
 
@@ -159,11 +189,11 @@
             const row = selectElement.closest('tr');
             const feedback = row.querySelector('.stock-feedback');
             const priceField = row.querySelector('.price-field');
-            
+
             if (sku && inventoryMap[sku] !== undefined) {
                 // Find product data in inventoryMap
                 const productData = Array.isArray(inventarioActivo) ? inventarioActivo.find(p => p.sku === sku) : null;
-                
+
                 feedback.textContent = inventoryMap[sku];
                 if (inventoryMap[sku] <= 0) {
                     feedback.style.color = '#EF4444';
@@ -186,9 +216,9 @@
             const body = document.getElementById('detallesBody');
             const firstRow = body.querySelector('tr');
             if (!firstRow) return;
-            
+
             const newRow = firstRow.cloneNode(true);
-            
+
             // Tom Select clones the wrapper, we only want the original select
             const tsWrapper = newRow.querySelector('.ts-wrapper');
             if (tsWrapper) {
@@ -207,10 +237,10 @@
                 // Re-initialize Tom Select on the new select
                 setTimeout(() => initTomSelect(select), 10);
             }
-            
+
             const feedback = newRow.querySelector('.stock-feedback');
             if (feedback) feedback.textContent = '---';
-            
+
             body.appendChild(newRow);
         });
 

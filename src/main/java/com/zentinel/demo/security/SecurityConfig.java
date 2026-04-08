@@ -28,17 +28,17 @@ public class SecurityConfig {
                         // Panel exclusivo del Super Admin (Zentinel)
                         .requestMatchers("/zentinel-master/**").hasRole("SUPER_ADMIN")
                         // Administración de la Empresa
-                        .requestMatchers("/usuarios/**", "/almacenes/**", "/configuracion/**").hasRole("ADMIN_EMPRESA")
+                        .requestMatchers("/usuarios/**", "/almacenes/**", "/configuracion/**").hasAnyRole("ADMIN_EMPRESA", "SUPER_ADMIN")
                         // Catálogos: ADMIN_EMPRESA puede crear/editar
                         .requestMatchers("/productos/nuevo", "/productos/guardar", "/categorias/**",
                                 "/proveedores/nuevo", "/proveedores/guardar", "/clientes/nuevo", "/clientes/guardar")
-                        .hasRole("ADMIN_EMPRESA")
+                        .hasAnyRole("ADMIN_EMPRESA", "SUPER_ADMIN")
                         // Lectura y Operación
                         .requestMatchers("/productos/**", "/proveedores/**", "/clientes/**")
-                        .hasAnyRole("SUPER_ADMIN", "ADMIN_EMPRESA", "AUDITOR", "OPERATIVO")
+                        .hasAnyRole("SUPER_ADMIN", "ADMIN_EMPRESA", "AUDITOR", "OPERATIVO", "MOSTRADOR")
                         // Movimientos y Reportes
                         .requestMatchers("/entradas/**", "/salidas/**", "/reportes/**")
-                        .hasAnyRole("ADMIN_EMPRESA", "OPERATIVO", "AUDITOR")
+                        .hasAnyRole("ADMIN_EMPRESA", "OPERATIVO", "AUDITOR", "MOSTRADOR")
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")
