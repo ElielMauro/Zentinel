@@ -42,6 +42,7 @@
                         <div class="input-group">
                             <label>Almacén de Recepción</label>
                             <select th:field="*{almacenDestino}" required>
+                                <option value="">Seleccione...</option>
                                 <option th:each="a : ${almacenes}" th:value="${a.id}" th:text="${a.nombre}"></option>
                             </select>
                         </div>

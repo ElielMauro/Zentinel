@@ -43,6 +43,11 @@ public class AlmacenSelectorController {
             almacenes = companyToUse.getAlmacenes();
         } else {
             almacenes = almacenService.findByUser(usuario);
+            // Fallback: si el usuario no tiene almacenes asignados pero tiene empresa,
+            // mostrar todos los almacenes de su empresa (ej: usuario MOSTRADOR creado sin asignarle almacenes)
+            if ((almacenes == null || almacenes.isEmpty()) && usuario.getEmpresa() != null) {
+                almacenes = almacenService.findByEmpresaId(usuario.getEmpresa().getId());
+            }
         }
 
         if (almacenes != null && almacenes.size() == 1) {
@@ -63,6 +68,14 @@ public class AlmacenSelectorController {
             String rol = usuario.getRol();
             boolean isManager = "ADMIN".equals(rol) || "ADMIN_EMPRESA".equals(rol) || "SUPER_ADMIN".equals(rol);
             boolean hasAccess = isManager || (usuario.getAlmacenes() != null && usuario.getAlmacenes().contains(almacen));
+            
+            // Fallback: si el usuario no tiene almacenes asignados explícitamente pero pertenece a la misma empresa del almacén
+            if (!hasAccess && !isManager && (usuario.getAlmacenes() == null || usuario.getAlmacenes().isEmpty())) {
+                if (usuario.getEmpresa() != null && almacen.getEmpresa() != null && 
+                    usuario.getEmpresa().getId().equals(almacen.getEmpresa().getId())) {
+                    hasAccess = true;
+                }
+            }
             
             if (hasAccess) {
                 session.setAttribute("activeAlmacen", almacen);

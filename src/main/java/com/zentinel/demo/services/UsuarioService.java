@@ -4,11 +4,13 @@ import com.zentinel.demo.models.Usuario;
 import com.zentinel.demo.repositories.UsuarioRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@Transactional
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
@@ -44,6 +46,13 @@ public class UsuarioService {
                 throw new RuntimeException("No se puede eliminar un actor base del sistema.");
             }
             u.setActivo(false);
+            usuarioRepository.save(u);
+        });
+    }
+
+    public void activar(String username) {
+        usuarioRepository.findById(username).ifPresent(u -> {
+            u.setActivo(true);
             usuarioRepository.save(u);
         });
     }
