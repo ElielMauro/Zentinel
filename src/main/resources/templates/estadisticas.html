@@ -46,7 +46,9 @@
     <!-- Gráfica: Top 25 Productos (ancho completo, más alta) -->
     <div class="chart-card" style="margin-bottom: 2rem;">
         <h4 class="chart-title">📊 Top 25 Productos Más Usados</h4>
-        <canvas id="chartTop25"></canvas>
+        <div id="top25Container" style="position: relative; width: 100%;">
+            <canvas id="chartTop25"></canvas>
+        </div>
     </div>
 
     <!-- Búsqueda de producto por SKU -->
@@ -210,8 +212,11 @@
 
     // ─── Gráfica Top 25 ────────────────────────────────────────────────────────
     const top25Canvas = document.getElementById('chartTop25');
+    const top25Container = document.getElementById('top25Container');
     const top25Count  = top25Labels.length > 0 ? top25Labels.length : 1;
-    top25Canvas.style.height = Math.max(320, top25Count * 28 + 60) + 'px';
+    
+    // Asignar altura al CONTENEDOR, no al canvas, para evitar bucles de resize
+    top25Container.style.height = Math.max(320, top25Count * 30 + 60) + 'px';
 
     new Chart(top25Canvas, {
         type: 'bar',
