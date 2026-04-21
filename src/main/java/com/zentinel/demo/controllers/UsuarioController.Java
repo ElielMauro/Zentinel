@@ -36,7 +36,14 @@ public class UsuarioController {
             model.addAttribute("usuarios", usuarioService.findAll());
         } else if (empresaId != null) {
             // Todos los demás (o SA con contexto) ven los de la empresa
-            model.addAttribute("usuarios", usuarioService.findByEmpresaId(empresaId));
+            List<Usuario> usuarios = usuarioService.findByEmpresaId(empresaId);
+            
+            // Si NO es Super Admin, ocultamos a los SUPER_ADMIN de la lista
+            List<Usuario> listadoFiltrado = usuarios.stream()
+                .filter(u -> isSuperAdmin || !"SUPER_ADMIN".equals(u.getRol()))
+                .toList();
+            
+            model.addAttribute("usuarios", listadoFiltrado);
         } else {
             model.addAttribute("usuarios", new java.util.ArrayList<>());
         }
@@ -55,37 +62,47 @@ public class UsuarioController {
     @PostMapping("/guardar")
     public String guardarUsuario(@ModelAttribute Usuario usuario,
                                  @RequestParam(value = "almacenIds", required = false) List<Integer> almacenIds,
-                                 jakarta.servlet.http.HttpSession session) {
-        // Asignar empresa del contexto si el usuario no tiene una (para creación desde gestión)
-        Integer empresaId = null;
-        if (usuario.getEmpresa() == null) {
-            empresaId = com.zentinel.demo.security.TenantContext.getCurrentEmpresaId(session);
-            if (empresaId != null) {
-                com.zentinel.demo.models.Empresa emp = new com.zentinel.demo.models.Empresa();
-                emp.setId(empresaId);
-                usuario.setEmpresa(emp);
-            }
-        } else {
-            empresaId = usuario.getEmpresa().getId();
-        }
-
-        // Asignar almacenes seleccionados al usuario
-        if (almacenIds != null && !almacenIds.isEmpty()) {
-            Set<Almacen> almacenes = new HashSet<>();
-            for (Integer almacenId : almacenIds) {
-                Almacen alm = almacenService.findById(almacenId);
-                if (alm != null) {
-                    almacenes.add(alm);
+                                 jakarta.servlet.http.HttpSession session,
+                                 org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        try {
+            // Asignar empresa del contexto si el usuario no tiene una (para creación desde gestión)
+            Integer empresaId = null;
+            if (usuario.getEmpresa() == null) {
+                empresaId = com.zentinel.demo.security.TenantContext.getCurrentEmpresaId(session);
+                if (empresaId != null) {
+                    com.zentinel.demo.models.Empresa emp = new com.zentinel.demo.models.Empresa();
+                    emp.setId(empresaId);
+                    usuario.setEmpresa(emp);
                 }
+            } else {
+                empresaId = usuario.getEmpresa().getId();
             }
-            usuario.setAlmacenes(almacenes);
-        } else if (empresaId != null) {
-            // Si no se seleccionaron almacenes específicos, asignar TODOS los de la empresa
-            List<Almacen> todosAlmacenes = almacenService.findByEmpresaId(empresaId);
-            usuario.setAlmacenes(new HashSet<>(todosAlmacenes));
-        }
 
-        usuarioService.save(usuario);
+            if (empresaId == null) {
+                throw new RuntimeException("No se detectó una empresa activa para asignar al usuario.");
+            }
+
+            // Asignar almacenes seleccionados al usuario
+            if (almacenIds != null && !almacenIds.isEmpty()) {
+                Set<Almacen> almacenes = new HashSet<>();
+                for (Integer almacenId : almacenIds) {
+                    Almacen alm = almacenService.findById(almacenId);
+                    if (alm != null) {
+                        almacenes.add(alm);
+                    }
+                }
+                usuario.setAlmacenes(almacenes);
+            } else {
+                // Si no se seleccionaron almacenes específicos, asignar TODOS los de la empresa
+                List<Almacen> todosAlmacenes = almacenService.findByEmpresaId(empresaId);
+                usuario.setAlmacenes(new HashSet<>(todosAlmacenes));
+            }
+
+            usuarioService.save(usuario);
+            redirectAttributes.addFlashAttribute("mensaje", "Usuario '" + usuario.getUsuario() + "' guardado correctamente.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error al guardar usuario: " + e.getMessage());
+        }
         return "redirect:/usuarios";
     }
 
@@ -110,5 +127,29 @@ public class UsuarioController {
         usuarioService.activar(id);
         redirectAttributes.addFlashAttribute("mensaje", "Usuario activado correctamente.");
         return "redirect:/usuarios";
+    }
+
+    @PostMapping("/cambiar-password")
+    public String cambiarPassword(@RequestParam String usuarioId, @RequestParam String nuevaPassword, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        Usuario user = usuarioService.findById(usuarioId);
+        if (user != null) {
+            user.setPassword(nuevaPassword);
+            usuarioService.save(user);
+            redirectAttributes.addFlashAttribute("mensaje", "Contraseña actualizada correctamente.");
+        }
+        return "redirect:/usuarios";
+    }
+
+    @PostMapping("/mi-password")
+    public String cambiarMiPassword(@RequestParam String nuevaPassword, org.springframework.security.core.Authentication auth, jakarta.servlet.http.HttpServletRequest request) {
+        if (auth != null && auth.getName() != null) {
+            Usuario user = usuarioService.findById(auth.getName());
+            if (user != null) {
+                user.setPassword(nuevaPassword);
+                usuarioService.save(user);
+            }
+        }
+        String referer = request.getHeader("Referer");
+        return "redirect:" + (referer != null ? referer : "/");
     }
 }

@@ -113,6 +113,7 @@
                 <p><strong>Almacén:</strong> <span th:text="${salida.almacenOrigen.nombre}"></span></p>
                 <p><strong>Área:</strong> <span th:text="${salida.area.nombre}"></span></p>
                 <p><strong>Departamento:</strong> <span th:text="${salida.departamento}"></span></p>
+                <p><strong>Tipo Cliente:</strong> <span th:text="${salida.tipoCliente != null && !salida.tipoCliente.isEmpty() ? salida.tipoCliente : 'Estándar / Mostrador'}"></span></p>
             </div>
             <div>
                 <p><strong>Reporte/Folio:</strong> <span th:text="${salida.numReporte}"></span></p>
@@ -137,26 +138,27 @@
                 <tr th:each="det : ${salida.detalles}">
                     <td th:text="${det.producto.sku}"></td>
                     <td th:text="${det.producto.nombre}"></td>
-                    <td th:text="${det.cantidadEntregada}"></td>
+                    <td th:text="${(det.producto.aceptaDecimales != null and det.producto.aceptaDecimales) ? det.cantidadEntregada : (det.cantidadEntregada != null ? #numbers.formatInteger(det.cantidadEntregada, 0) : 0)}"></td>
                     <td th:text="${det.producto.unidadMedida}"></td>
                 </tr>
             </tbody>
         </table>
     </div>
 
-    <div class="section">
-        <p><strong>Descripción:</strong></p>
-        <p th:text="${salida.descripcion}"></p>
+
+    <div class="section" th:if="${salida.descripcion != null and !salida.descripcion.isEmpty()}">
+        <span class="section-title">DESCRIPCIÓN / MOTIVO</span>
+        <p th:text="${salida.descripcion}" style="margin-top:10px; padding: 10px; border: 1px solid #eee; border-radius: 4px;"></p>
     </div>
 
     <div class="signature-area">
         <div class="signature-box">
-            <p th:text="${salida.usuarioSolicitante.nombre + ' ' + salida.usuarioSolicitante.apellidoPaterno}"></p>
-            <small>Firma Solicitante</small>
+            <p th:text="${salida.nombreSolicitante != null ? salida.nombreSolicitante : 'N/A'}"></p>
+            <small>Firma del Solicitante / Quien Recibe</small>
         </div>
         <div class="signature-box">
-            <p th:text="${salida.usuarioAtendio.nombre + ' ' + salida.usuarioAtendio.apellidoPaterno}"></p>
-            <small>Atendió (Almacén)</small>
+            <p th:text="${salida.usuarioAtendio != null ? salida.usuarioAtendio.nombre + ' ' + salida.usuarioAtendio.apellidoPaterno : 'Sistema'}"></p>
+            <small>Atendió / Entregó (Almacén)</small>
         </div>
     </div>
     <script>

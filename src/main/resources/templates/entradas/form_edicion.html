@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Zentinel | Editar Entrada')}"></head>
+
+<body>
+    <div class="sidebar" th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/topbar :: topbar('Editar Entrada', 'Corrección de datos y materiales')}"></div>
+
+        <div class="content-wrapper">
+            <div class="header-section">
+                <h1 th:text="'Editando Entrada de Factura #' + ${entrada.folioFactura}">Editar Entrada</h1>
+                <p>Modifique la información y los materiales asociados a esta factura. Los cambios en cantidades se reflejarán en inventario.</p>
+            </div>
+
+
+
+            <form th:action="@{/entradas/actualizar/{id}(id=${entrada.id})}" method="post" class="premium-form" id="editForm">
+                <div class="form-grid">
+                    <div class="form-card">
+                        <h3>Información General</h3>
+                        <div class="input-group">
+                            <label>Folio Factura</label>
+                            <input type="text" name="folioFactura" th:value="${entrada.folioFactura}" required>
+                        </div>
+                        <div class="input-group">
+                            <label>N° Pedimento / PP</label>
+                            <input type="text" name="numPp" th:value="${entrada.numPp}" placeholder="Opcional">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-card full-width">
+                    <h3>Descripción / Comentarios</h3>
+                    <textarea name="comentarios" rows="3"
+                        th:text="${entrada.comentarios}"
+                        style="width: 100%; box-sizing: border-box; resize: vertical; min-height: 100px; font-size: 1.1rem; padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(15,23,42,0.4); color: white;"></textarea>
+                </div>
+
+                <!-- MATERIAL EDITING TABLE -->
+                <div class="form-card full-width">
+                    <h3>Detalle de Materiales</h3>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
+                        ⚠️ <strong>Importante:</strong> Los cambios en cantidades actualizarán el inventario automáticamente (diferencia anterior vs nueva).
+                    </p>
+                    <table class="premium-table" id="tablaDetalles">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>SKU</th>
+                                <th style="width: 140px;">Cantidad</th>
+                                <th style="width: 140px;">Precio Unit.</th>
+                                <th style="width: 70px;">Quitar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="d, idx : ${entrada.detalles}">
+                                <td th:text="${d.producto.nombre}" style="font-weight: 500;"></td>
+                                <td>
+                                    <input type="hidden" th:name="'detalleId_' + ${idx.index}" th:value="${d.id}">
+                                    <input type="hidden" th:name="'productoSku_' + ${idx.index}" th:value="${d.producto.sku}">
+                                    <span th:text="${d.producto.sku}" style="color: var(--text-muted);"></span>
+                                </td>
+                                <td>
+                                    <input type="number" th:name="'cantidad_' + ${idx.index}" th:value="${d.cantidad}"
+                                        th:step="${d.producto.aceptaDecimales ? '0.0001' : '1'}" min="0.0001" required
+                                        class="fancy-input">
+                                </td>
+                                <td>
+                                    <input type="number" th:name="'precio_' + ${idx.index}" th:value="${d.precioUnitario}"
+                                        step="0.01" min="0" required
+                                        class="fancy-input">
+                                </td>
+                                <td style="text-align: center;">
+                                    <button type="button" class="btn-icon delete-row" title="Quitar de la factura">🗑️</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <input type="hidden" name="totalDetalles" id="totalDetalles" th:value="${entrada.detalles.size()}">
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">💾 Guardar Cambios</button>
+                    <a th:href="@{/entradas/detalle/{id}(id=${entrada.id})}" class="btn-ghost">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('tablaDetalles').addEventListener('click', function(e) {
+            if (e.target.closest('.delete-row')) {
+                const tbody = document.getElementById('tablaDetalles').querySelector('tbody');
+                if (tbody.rows.length > 1) {
+                    e.target.closest('tr').remove();
+                    // Re-index
+                    const rows = tbody.querySelectorAll('tr');
+                    rows.forEach((row, i) => {
+                        row.querySelectorAll('input[type=hidden]').forEach(inp => {
+                            inp.name = inp.name.replace(/_\d+$/, '_' + i);
+                        });
+                        row.querySelectorAll('input[type=number]').forEach(inp => {
+                            inp.name = inp.name.replace(/_\d+$/, '_' + i);
+                        });
+                    });
+                    document.getElementById('totalDetalles').value = rows.length;
+                } else {
+                    alert('Debe tener al menos un producto en la factura.');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

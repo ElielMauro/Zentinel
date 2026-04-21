@@ -40,7 +40,7 @@ public class AlmacenSelectorController {
         }
 
         if (companyToUse != null && ("ADMIN_EMPRESA".equals(usuario.getRol()) || "SUPER_ADMIN".equals(usuario.getRol()))) {
-            almacenes = companyToUse.getAlmacenes();
+            almacenes = almacenService.findByEmpresaId(companyToUse.getId());
         } else {
             almacenes = almacenService.findByUser(usuario);
             // Fallback: si el usuario no tiene almacenes asignados pero tiene empresa,

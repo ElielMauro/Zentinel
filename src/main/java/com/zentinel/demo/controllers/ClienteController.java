@@ -1,6 +1,7 @@
 package com.zentinel.demo.controllers;
 
 import com.zentinel.demo.models.Cliente;
+import com.zentinel.demo.models.TipoCliente;
 import com.zentinel.demo.repositories.ClienteRepository;
 import com.zentinel.demo.repositories.TipoClienteRepository;
 import org.springframework.stereotype.Controller;
@@ -20,8 +21,13 @@ public class ClienteController {
     }
 
     @GetMapping
-    public String list(Model model) {
-        model.addAttribute("listaClientes", clienteRepository.findAll());
+    public String list(Model model, jakarta.servlet.http.HttpSession session) {
+        Integer empresaId = com.zentinel.demo.security.TenantContext.getCurrentEmpresaId(session);
+        if (empresaId != null) {
+            model.addAttribute("listaClientes", clienteRepository.findByEmpresa_Id(empresaId));
+        } else {
+            model.addAttribute("listaClientes", new java.util.ArrayList<>());
+        }
         return "clientes";
     }
 
@@ -33,8 +39,49 @@ public class ClienteController {
     }
 
     @PostMapping("/guardar")
-    public String save(@ModelAttribute Cliente cliente) {
-        clienteRepository.save(cliente);
+    public String save(@ModelAttribute Cliente cliente,
+                       @RequestParam(value = "tipoClienteId", required = false) Integer tipoClienteId,
+                       jakarta.servlet.http.HttpSession session,
+                       org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        
+        try {
+            // 1. Resolver Tipo de Cliente
+            if (tipoClienteId != null) {
+                TipoCliente tc = tipoClienteRepository.findById(tipoClienteId).orElse(null);
+                cliente.setTipoCliente(tc);
+            }
+
+            // 2. Garantizar Empresa (Multi-tenant)
+            Integer empresaId = com.zentinel.demo.security.TenantContext.getCurrentEmpresaId(session);
+            if (empresaId == null) {
+                throw new RuntimeException("Error: No hay una empresa activa en el sistema. Asegúrate de haber seleccionado una empresa si eres Administrador.");
+            }
+
+            com.zentinel.demo.models.Empresa emp = new com.zentinel.demo.models.Empresa();
+            emp.setId(empresaId);
+            cliente.setEmpresa(emp);
+
+            // 3. Metadatos
+            if (cliente.getFechaRegistro() == null) {
+                cliente.setFechaRegistro(java.time.LocalDateTime.now());
+            }
+
+            // 4. Guardar
+            clienteRepository.save(cliente);
+            redirectAttributes.addFlashAttribute("mensaje", "Cliente '" + cliente.getNombre() + "' guardado exitosamente.");
+            
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Fallo al guardar cliente: " + e.getMessage());
+        }
+
+        return "redirect:/clientes";
+    }
+
+    @PostMapping("/tipo/guardar")
+    public String saveTipo(@RequestParam String nombre) {
+        com.zentinel.demo.models.TipoCliente tc = new com.zentinel.demo.models.TipoCliente();
+        tc.setNombre(nombre);
+        tipoClienteRepository.save(tc);
         return "redirect:/clientes";
     }
 }

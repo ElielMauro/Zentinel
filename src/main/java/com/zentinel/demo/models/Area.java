@@ -16,4 +16,8 @@ public class Area {
 
     @Column(length = 200)
     private String descripcion;
+
+    @ManyToOne
+    @JoinColumn(name = "empresa_id")
+    private Empresa empresa;
 }

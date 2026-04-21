@@ -16,43 +16,55 @@
                 <span class="search-icon">🔍</span>
                 <input type="text" id="searchInput" placeholder="Buscar por SKU, nombre o categoría..." onkeyup="filterTable()">
             </div>
-            <a th:href="@{/productos/nuevo}" class="btn-add">
+            <a th:href="@{/productos/nuevo}" class="btn-add" sec:authorize="!hasRole('MOSTRADOR')">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 Nuevo Producto
             </a>
         </div>
 
         <div class="form-card full-width">
-            <h3>Catálogo de Productos</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h3>Catálogo de Productos</h3>
+                <div th:if="${activeAlmacen != null}" class="badge badge-primary" 
+                    th:text="'Almacén Activo: ' + ${activeAlmacen.nombre}"
+                    style="font-size: 0.9rem; padding: 0.5rem 1rem;"></div>
+            </div>
+            
             <table class="premium-table" id="productsTable">
                 <thead>
                     <tr>
                         <th>SKU</th>
                         <th>Nombre</th>
                         <th>Categoría</th>
+                        <th style="text-align: center;">Stock Local</th>
+                        <th style="text-align: center;">Stock Total</th>
                         <th>Precio</th>
                         <th>U.M.</th>
                         <th>Estado</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="p : ${listaProductos}">
+                    <tr th:each="item : ${listaProductos}">
                         <td>
-                            <a th:href="@{/productos/detalle/{sku}(sku=${p.sku})}" 
+                            <a th:href="@{/productos/detalle/{sku}(sku=${item.producto.sku})}" 
                                style="color: var(--primary); text-decoration: none; font-weight: 600;" 
-                               th:text="${p.sku}"></a>
+                               th:text="${item.producto.sku}"></a>
                         </td>
-                        <td th:text="${p.nombre}"></td>
-                        <td th:text="${p.tipoProducto != null ? p.tipoProducto.nombre : 'S/C'}"></td>
-                        <td th:text="${'$' + p.precioUnitario}"></td>
-                        <td th:text="${p.unidadMedida}"></td>
+                        <td th:text="${item.producto.nombre}"></td>
+                        <td th:text="${item.producto.tipoProducto != null ? item.producto.tipoProducto.nombre : 'S/C'}"></td>
+                        <td style="text-align: center; font-weight: 700; color: var(--primary);" 
+                            th:text="${(item.producto.aceptaDecimales ?: false) ? item.stockAlmacen : #numbers.formatInteger(item.stockAlmacen ?: 0, 0)}">0</td>
+                        <td style="text-align: center; font-weight: 600;" 
+                            th:text="${(item.producto.aceptaDecimales ?: false) ? item.totalGlobal : #numbers.formatInteger(item.totalGlobal ?: 0, 0)}">0</td>
+                        <td th:text="${'$' + (item.producto.precioUnitario ?: '0.00')}"></td>
+                        <td th:text="${item.producto.unidadMedida}"></td>
                         <td>
-                            <span th:class="${'badge ' + (p.activo ? 'badge-success' : 'badge-danger')}"
-                                th:text="${p.activo ? 'Activo' : 'Inactivo'}"></span>
+                            <span th:class="${'badge ' + (item.producto.activo == true ? 'badge-success' : 'badge-danger')}"
+                                th:text="${item.producto.activo == true ? 'Activo' : 'Inactivo'}"></span>
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(listaProductos)}">
-                        <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                        <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">
                             No hay productos registrados.
                         </td>
                     </tr>

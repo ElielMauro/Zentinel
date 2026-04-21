@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 public class ZentinelMasterController {
 
     private final EmpresaService empresaService;
+    private final com.zentinel.demo.services.AlmacenService almacenService;
 
     @GetMapping("/empresas")
     public String listEmpresas(Model model) {
@@ -57,13 +58,21 @@ public class ZentinelMasterController {
         if (empresa != null) {
             session.setAttribute("currentEmpresa", empresa);
             // Seleccionar el primer almacén de esta empresa para el contexto operativo
-            if (empresa.getAlmacenes() != null && !empresa.getAlmacenes().isEmpty()) {
-                session.setAttribute("activeAlmacen", empresa.getAlmacenes().get(0));
+            // Seleccionar el primer almacén de esta empresa para el contexto operativo de forma segura
+            java.util.List<com.zentinel.demo.models.Almacen> almacenes = almacenService.findByEmpresaId(id);
+            if (almacenes != null && !almacenes.isEmpty()) {
+                session.setAttribute("activeAlmacen", almacenes.get(0));
             } else {
                 session.removeAttribute("activeAlmacen");
             }
         }
         return "redirect:/"; // Redirigir al dashboard de esa empresa
+    }
+    @GetMapping("/empresas/salir")
+    public String salirEmpresa(jakarta.servlet.http.HttpSession session) {
+        session.removeAttribute("currentEmpresa");
+        session.removeAttribute("activeAlmacen");
+        return "redirect:/";
     }
 }
 

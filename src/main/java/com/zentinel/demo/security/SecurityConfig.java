@@ -28,17 +28,17 @@ public class SecurityConfig {
                         // Panel exclusivo del Super Admin (Zentinel)
                         .requestMatchers("/zentinel-master/**").hasRole("SUPER_ADMIN")
                         // Administración de la Empresa
-                        .requestMatchers("/usuarios/**", "/almacenes/**", "/configuracion/**").hasAnyRole("ADMIN_EMPRESA", "SUPER_ADMIN")
+                        .requestMatchers("/usuarios/**", "/almacenes/**").hasAnyRole("ADMIN_EMPRESA", "SUPER_ADMIN", "ADMIN")
                         // Catálogos: ADMIN_EMPRESA puede crear/editar
                         .requestMatchers("/productos/nuevo", "/productos/guardar", "/categorias/**",
                                 "/proveedores/nuevo", "/proveedores/guardar", "/clientes/nuevo", "/clientes/guardar")
-                        .hasAnyRole("ADMIN_EMPRESA", "SUPER_ADMIN")
+                        .hasAnyRole("ADMIN_EMPRESA", "SUPER_ADMIN", "MOSTRADOR", "ADMIN")
                         // Lectura y Operación
                         .requestMatchers("/productos/**", "/proveedores/**", "/clientes/**")
-                        .hasAnyRole("SUPER_ADMIN", "ADMIN_EMPRESA", "AUDITOR", "OPERATIVO", "MOSTRADOR")
+                        .hasAnyRole("SUPER_ADMIN", "ADMIN_EMPRESA", "AUDITOR", "OPERATIVO", "MOSTRADOR", "ADMIN")
                         // Movimientos y Reportes
                         .requestMatchers("/entradas/**", "/salidas/**", "/reportes/**")
-                        .hasAnyRole("ADMIN_EMPRESA", "OPERATIVO", "AUDITOR", "MOSTRADOR")
+                        .hasAnyRole("ADMIN_EMPRESA", "OPERATIVO", "AUDITOR", "MOSTRADOR", "ADMIN")
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")

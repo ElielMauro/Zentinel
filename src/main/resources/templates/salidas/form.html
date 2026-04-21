@@ -14,27 +14,7 @@
                 <p>Complete los datos para generar el vale de salida.</p>
             </div>
 
-            <style>
-                .fancy-input {
-                    width: 100%;
-                    max-width: 140px;
-                    padding: 0.8rem;
-                    border-radius: 8px;
-                    border: 1px solid rgba(255,255,255,0.1);
-                    background: rgba(15,23,42,0.6);
-                    color: white;
-                    font-size: 1rem;
-                    text-align: center;
-                    transition: all 0.2s;
-                }
-                .fancy-input:focus {
-                    border-color: var(--primary);
-                    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
-                    outline: none;
-                }
-                /* Arreglo responsivo para TomSelect */
-                .ts-wrapper { width: 100%; min-width: 250px; }
-            </style>
+
 
             <form th:action="@{/salidas/guardar}" th:object="${salida}" method="post" class="premium-form"
                 id="salidaForm">
@@ -51,10 +31,11 @@
                             </select>
                         </div>
                         <div class="input-group">
-                            <label>Área Destino</label>
-                            <select th:field="*{area}" required>
-                                <option value="">Seleccione Área...</option>
-                                <option th:each="area : ${areas}" th:value="${area.id}" th:text="${area.nombre}">
+                            <label>Cliente</label>
+                            <select name="clienteId" id="clienteId" required>
+                                <option value="">Seleccione Cliente...</option>
+                                <option th:each="c : ${clientes}" th:value="${c.id}"
+                                    th:text="${c.nombre + (c.codigo != null ? ' (' + c.codigo + ')' : '')}">
                                 </option>
                             </select>
                         </div>
@@ -62,11 +43,18 @@
                             <label>Departamento</label>
                             <input type="text" th:field="*{departamento}" placeholder="Ej. Mantenimiento" required>
                         </div>
+
+
                     </div>
 
                     <!-- Datos de Referencia -->
                     <div class="form-card">
                         <h3>Referencias</h3>
+                        <div class="input-group">
+                            <label>Nombre de quien recibe (Solicitante)</label>
+                            <input type="text" th:field="*{nombreSolicitante}"
+                                placeholder="Nombre completo de quien se lleva el material" required>
+                        </div>
                         <div class="input-group">
                             <label>N° Reporte / Folio</label>
                             <input type="text" th:field="*{numReporte}" placeholder="Opcional">
@@ -75,27 +63,7 @@
                             <label>N° Presupuesto</label>
                             <input type="text" th:field="*{numPresupuesto}" placeholder="Opcional">
                         </div>
-                        <div class="input-group">
-                            <label>Solicitante Registrado (Opcional)</label>
-                            <select th:field="*{usuarioSolicitante}">
-                                <option value="">Seleccione Usuario...</option>
-                                <option th:each="u : ${usuarios}" th:value="${u.usuario}"
-                                    th:text="${u.nombre + ' ' + u.apellidoPaterno}"></option>
-                            </select>
-                        </div>
-                        <div class="input-group">
-                            <label>Nombre de quien recibe (Solicitante)</label>
-                            <input type="text" th:field="*{nombreSolicitante}"
-                                placeholder="Nombre completo de quien se lleva el material">
-                        </div>
-                        <div class="input-group">
-                            <label>Personal que Atendió / Entregó</label>
-                            <select th:field="*{usuarioAtendio}" required>
-                                <option value="">Seleccione Persona...</option>
-                                <option th:each="u : ${usuariosAtendio}" th:value="${u.usuario}"
-                                    th:text="${u.nombre + ' ' + u.apellidoPaterno}"></option>
-                            </select>
-                        </div>
+                        <input type="hidden" th:value="${#authentication.name}" name="usuarioAtendio" />
                     </div>
                 </div>
 
@@ -105,8 +73,6 @@
                         placeholder="Escriba aquí el motivo detallado de la salida (este campo es amplio para su comodidad)..."
                         style="width: 100%; box-sizing: border-box; resize: vertical; min-height: 120px; font-size: 1.1rem; padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(15,23,42,0.4); color: white;"></textarea>
                 </div>
-
-                <!-- Detalle de Productos -->
                 <div class="form-card full-width">
                     <h3>Detalle de Materiales</h3>
                     <table class="premium-table" id="tablaProductos">
@@ -131,13 +97,25 @@
                                 </td>
                                 <td class="stock-feedback">---</td>
                                 <td>
-                                    <input type="number" name="precioUnitario" class="price-field fancy-input" step="0.01" readonly
-                                        style="font-weight: bold;">
+                                    <input type="number" name="precioUnitario" class="price-field fancy-input"
+                                        step="0.01" readonly style="font-weight: bold;">
                                 </td>
                                 <td>
-                                    <input type="number" name="cantidad" class="fancy-input" step="0.0001" min="0.0001" required>
+                                    <input type="number" name="cantidad" class="fancy-input" step="0.0001" min="0.0001"
+                                        required>
                                 </td>
-                                <td><button type="button" class="btn-icon delete-row">🗑️</button></td>
+                                <td style="text-align: center;"><button type="button" class="delete-row"
+                                        title="Eliminar fila">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M3 6h18"></path>
+                                            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                                            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                                        </svg>
+                                    </button></td>
                             </tr>
                         </tbody>
                     </table>
@@ -156,7 +134,15 @@
     <script th:inline="javascript">
         /*<![CDATA[*/
         const inventoryMap = {};
+        const productMetadata = {};
         const inventarioActivo = /*[[${inventarioActivo}]]*/[];
+        const listaProductos = /*[[${productos}]]*/[];
+
+        if (Array.isArray(listaProductos)) {
+            listaProductos.forEach(p => {
+                productMetadata[p.sku] = { aceptaDecimales: p.aceptaDecimales };
+            });
+        }
 
         if (Array.isArray(inventarioActivo)) {
             inventarioActivo.forEach(inv => {
@@ -189,26 +175,41 @@
             const row = selectElement.closest('tr');
             const feedback = row.querySelector('.stock-feedback');
             const priceField = row.querySelector('.price-field');
+            const qtyField = row.querySelector('input[name="cantidad"]');
 
-            if (sku && inventoryMap[sku] !== undefined) {
-                // Find product data in inventoryMap
-                const productData = Array.isArray(inventarioActivo) ? inventarioActivo.find(p => p.sku === sku) : null;
+            if (sku && productMetadata[sku]) {
+                const meta = productMetadata[sku];
 
-                feedback.textContent = inventoryMap[sku];
-                if (inventoryMap[sku] <= 0) {
-                    feedback.style.color = '#EF4444';
-                    feedback.style.fontWeight = 'bold';
+                // Ajustar validación decimal
+                if (meta.aceptaDecimales) {
+                    qtyField.setAttribute('step', '0.0001');
                 } else {
-                    feedback.style.color = 'inherit';
-                    feedback.style.fontWeight = 'normal';
+                    qtyField.setAttribute('step', '1');
+                    if (qtyField.value) qtyField.value = Math.floor(qtyField.value);
                 }
 
-                if (productData && priceField) {
-                    priceField.value = productData.precio || '0.00';
+                if (inventoryMap[sku] !== undefined) {
+                    const stock = inventoryMap[sku];
+                    feedback.textContent = meta.aceptaDecimales ? stock : Math.floor(stock);
+
+                    if (stock <= 0) {
+                        feedback.style.color = '#EF4444';
+                        feedback.style.fontWeight = 'bold';
+                    } else {
+                        feedback.style.color = 'inherit';
+                        feedback.style.fontWeight = 'normal';
+                    }
+
+                    const productData = Array.isArray(inventarioActivo) ? inventarioActivo.find(p => p.sku === sku) : null;
+                    if (productData && priceField) {
+                        priceField.value = productData.precio || '0.00';
+                    }
+                } else {
+                    feedback.textContent = '0';
+                    if (priceField) priceField.value = '';
                 }
             } else {
-                feedback.textContent = '0';
-                if (priceField) priceField.value = '';
+                feedback.textContent = '---';
             }
         }
 
@@ -219,24 +220,24 @@
 
             const newRow = firstRow.cloneNode(true);
 
-            // Tom Select clones the wrapper, we only want the original select
-            const tsWrapper = newRow.querySelector('.ts-wrapper');
-            if (tsWrapper) {
-                const originalSelect = tsWrapper.previousElementSibling;
-                tsWrapper.remove();
-                originalSelect.style.display = 'block'; // Make it visible for clone reset
-                originalSelect.classList.remove('tomselected');
-                originalSelect.removeAttribute('id'); // TS adds IDs
-            }
+            // Fix TomSelect clone issue gracefully
+            const firstSelect = firstRow.querySelector('select.select-producto');
+            const newTd = newRow.querySelector('td');
+            newTd.innerHTML = ''; // Limpiar clonado sucio
+
+            const clonedSelect = firstSelect.cloneNode(true);
+            clonedSelect.classList.remove('tomselected', 'ts-hidden-accessible');
+            clonedSelect.removeAttribute('id');
+            clonedSelect.removeAttribute('tabindex');
+            clonedSelect.style.display = '';
+            clonedSelect.value = '';
+
+            newTd.appendChild(clonedSelect);
 
             // Limpiar valores
             newRow.querySelectorAll('input').forEach(i => i.value = '');
-            const select = newRow.querySelector('select');
-            if (select) {
-                select.value = '';
-                // Re-initialize Tom Select on the new select
-                setTimeout(() => initTomSelect(select), 10);
-            }
+            // El select fue manejado y reinsertado arriba, iniciamos TomSelect
+            setTimeout(() => initTomSelect(clonedSelect), 10);
 
             const feedback = newRow.querySelector('.stock-feedback');
             if (feedback) feedback.textContent = '---';

@@ -82,4 +82,8 @@ public class EntradaService {
     public List<Entrada> findByEmpresaId(Integer empresaId) {
         return entradaRepository.findByEmpresa_Id(empresaId);
     }
+
+    public Entrada save(Entrada entrada) {
+        return entradaRepository.save(entrada);
+    }
 }

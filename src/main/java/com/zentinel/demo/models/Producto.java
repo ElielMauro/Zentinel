@@ -58,6 +58,10 @@ public class Producto {
     @Column(name = "maximo_stock")
     private Integer maximoStock;
 
+    @Column(name = "acepta_decimales")
+    private Boolean aceptaDecimales = false;
+
+    @com.fasterxml.jackson.annotation.JsonIgnore
     @ManyToOne
     @JoinColumn(name = "empresa_id")
     private Empresa empresa;

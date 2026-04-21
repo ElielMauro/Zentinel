@@ -2,6 +2,7 @@ package com.zentinel.demo.models; // Usando tu ruta actual
 
 import jakarta.persistence.*;
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "almacenes")
@@ -21,6 +22,7 @@ public class Almacen {
     private Boolean activo = true;
 
     // RELACIÓN: Muchos almacenes pertenecen a una Empresa
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "empresa_id", referencedColumnName = "id")
     private Empresa empresa;

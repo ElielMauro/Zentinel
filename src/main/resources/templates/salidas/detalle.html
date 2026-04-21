@@ -39,12 +39,35 @@
                     <h3>Personal Involucrado</h3>
                     <div class="detail-item" style="margin-bottom: 1rem;">
                         <label>Solicitante</label>
-                        <span th:text="${salida.usuarioSolicitante.nombre + ' ' + salida.usuarioSolicitante.apellidoPaterno}"></span>
+                        <span th:text="${salida.nombreSolicitante != null ? salida.nombreSolicitante : 'N/A'}"></span>
+                    </div>
+                    <div class="detail-item" style="margin-bottom: 1rem;">
+                        <label>Tipo de Cliente</label>
+                        <span th:text="${salida.tipoCliente != null && !salida.tipoCliente.isEmpty() ? salida.tipoCliente : 'Estándar / Mostrador'}"></span>
                     </div>
                     <div class="detail-item" style="margin-bottom: 1rem;">
                         <label>Atendió</label>
                         <span th:text="${salida.usuarioAtendio != null ? salida.usuarioAtendio.nombre + ' ' + salida.usuarioAtendio.apellidoPaterno : 'Sistema'}"></span>
                     </div>
+                </div>
+            </div>
+
+            <div class="form-card full-width">
+                <h3>Información Adicional</h3>
+                <div class="detail-grid" style="margin-bottom: 1.5rem;">
+                    <div class="detail-item">
+                        <label>N° Reporte / Folio</label>
+                        <span th:text="${salida.numReporte != null && !salida.numReporte.isEmpty() ? salida.numReporte : 'Ninguno'}"></span>
+                    </div>
+                    <div class="detail-item">
+                        <label>N° Presupuesto</label>
+                        <span th:text="${salida.numPresupuesto != null && !salida.numPresupuesto.isEmpty() ? salida.numPresupuesto : 'Ninguno'}"></span>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <label>Descripción / Motivo</label>
+                    <p th:text="${salida.descripcion != null && !salida.descripcion.isEmpty() ? salida.descripcion : 'Sin descripción.'}"
+                        style="background: rgba(15, 23, 42, 0.4); padding: 1.2rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);"></p>
                 </div>
             </div>
 
@@ -64,7 +87,7 @@
                         <tr th:each="d : ${salida.detalles}">
                             <td th:text="${d.producto.nombre}"></td>
                             <td th:text="${d.producto.sku}"></td>
-                            <td style="text-align: center;" th:text="${d.cantidadEntregada}"></td>
+                            <td style="text-align: center;" th:text="${(d.producto.aceptaDecimales != null and d.producto.aceptaDecimales) ? d.cantidadEntregada : (d.cantidadEntregada != null ? #numbers.formatInteger(d.cantidadEntregada, 0) : 0)}"></td>
                             <td style="text-align: right;" th:text="${'$' + d.precioUnitario}"></td>
                             <td style="text-align: right;" th:text="${'$' + d.subtotalLinea}"></td>
                         </tr>
