@@ -38,9 +38,9 @@ public class UsuarioController {
             // Todos los demás (o SA con contexto) ven los de la empresa
             List<Usuario> usuarios = usuarioService.findByEmpresaId(empresaId);
             
-            // Filtramos a los SUPER_ADMIN para que no sean visibles por otros roles en la empresa
+            // Si NO es Super Admin, ocultamos a los SUPER_ADMIN de la lista
             List<Usuario> listadoFiltrado = usuarios.stream()
-                .filter(u -> !"SUPER_ADMIN".equals(u.getRol()))
+                .filter(u -> isSuperAdmin || !"SUPER_ADMIN".equals(u.getRol()))
                 .toList();
             
             model.addAttribute("usuarios", listadoFiltrado);

@@ -42,21 +42,29 @@ public class ClienteController {
     public String save(@ModelAttribute Cliente cliente,
                        @RequestParam(value = "tipoClienteId", required = false) Integer tipoClienteId,
                        jakarta.servlet.http.HttpSession session) {
-        // Resolver TipoCliente por ID
+        
+        // 1. Resolver Tipo de Cliente
         if (tipoClienteId != null) {
             TipoCliente tc = tipoClienteRepository.findById(tipoClienteId).orElse(null);
             cliente.setTipoCliente(tc);
         }
-        // Asignar empresa del contexto
-        if (cliente.getEmpresa() == null) {
-            Integer empresaId = com.zentinel.demo.security.TenantContext.getCurrentEmpresaId(session);
-            if (empresaId != null) {
-                com.zentinel.demo.models.Empresa emp = new com.zentinel.demo.models.Empresa();
-                emp.setId(empresaId);
-                cliente.setEmpresa(emp);
-            }
+
+        // 2. Garantizar Empresa (Multi-tenant)
+        Integer empresaId = com.zentinel.demo.security.TenantContext.getCurrentEmpresaId(session);
+        if (empresaId != null) {
+            com.zentinel.demo.models.Empresa emp = new com.zentinel.demo.models.Empresa();
+            emp.setId(empresaId);
+            cliente.setEmpresa(emp);
         }
+
+        // 3. Metadatos
+        if (cliente.getFechaRegistro() == null) {
+            cliente.setFechaRegistro(java.time.LocalDateTime.now());
+        }
+
+        // 4. Guardar
         clienteRepository.save(cliente);
+        
         return "redirect:/clientes";
     }
 
