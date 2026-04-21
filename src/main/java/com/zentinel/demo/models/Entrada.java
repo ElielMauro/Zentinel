@@ -44,6 +44,9 @@ public class Entrada {
     private String estatus;
 
     @Column(precision = 14, scale = 2)
+    private BigDecimal subtotal;
+
+    @Column(precision = 14, scale = 2)
     private BigDecimal iva;
 
     @Column(precision = 14, scale = 2)
@@ -65,7 +68,7 @@ public class Entrada {
     @Column(name = "motivo_cancelacion", length = 255)
     private String motivoCancelacion;
 
-    @OneToMany(mappedBy = "entrada", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "entrada", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EntradaDetalle> detalles;
 
     @ManyToOne

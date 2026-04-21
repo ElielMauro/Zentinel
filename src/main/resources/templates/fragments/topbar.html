@@ -26,10 +26,33 @@
 
             <span style="color: var(--text-muted)">Hola, <span sec:authentication="name"
                     style="color: white; font-weight: 600;">Usuario</span></span>
+            
+            <!-- Botón perfil/clave -->
+            <button type="button" class="btn" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 0.4rem 0.8rem; border-radius: 8px;" onclick="document.getElementById('modalMiPassword').style.display='flex'">🔑</button>
+
             <form th:action="@{/logout}" method="post" style="margin: 0;">
                 <button type="submit" class="btn btn-danger" style="cursor: pointer; padding: 0.4rem 1rem;">Cerrar
                     Sesión</button>
             </form>
+        </div>
+
+        <!-- Modal Mi Contraseña -->
+        <div id="modalMiPassword" class="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); backdrop-filter:blur(4px); align-items:center; justify-content:center; z-index:50;">
+            <div class="modal-content" style="background:var(--surface); padding:2rem; border-radius:16px; width:400px; border:1px solid rgba(255,255,255,0.1);">
+                <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
+                    <h3 style="margin:0;">Cambiar Mi Contraseña</h3>
+                    <button onclick="document.getElementById('modalMiPassword').style.display='none'" style="background:none; border:none; color:white; cursor:pointer;">&times;</button>
+                </div>
+                <form th:action="@{/usuarios/mi-password}" method="post">
+                    <div class="input-group">
+                        <label>Ingresa tu nueva contraseña</label>
+                        <input type="password" name="nuevaPassword" required minlength="4" style="width:100%; padding:0.75rem; border-radius:8px; background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.1); color:white; box-sizing:border-box;">
+                    </div>
+                    <div style="text-align: right; margin-top: 1.5rem;">
+                        <button type="submit" class="btn-primary">Actualizar Contraseña</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </body>

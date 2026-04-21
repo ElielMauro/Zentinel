@@ -6,7 +6,8 @@
 <body>
     <div th:replace="~{fragments/sidebar :: sidebar}"></div>
     <div class="main-content">
-        <div th:replace="~{fragments/topbar :: topbar('Detalle de Producto', 'Información completa del material')}"></div>
+        <div th:replace="~{fragments/topbar :: topbar('Detalle de Producto', 'Información completa del material')}">
+        </div>
 
         <div class="content-wrapper">
             <div class="header-section" style="display: flex; justify-content: space-between; align-items: flex-start;">
@@ -18,37 +19,72 @@
                     th:text="${producto.activo ? 'Activo' : 'Inactivo'}"></div>
             </div>
 
-            <div class="form-card full-width">
-                <h3>Información General</h3>
-                <div class="detail-grid" th:if="${producto != null}">
-                    <div class="detail-item">
-                        <label>Categoría</label>
-                        <span th:text="${producto.tipoProducto != null ? producto.tipoProducto.nombre : 'Sin Categoría'}" style="font-size: 1.1rem; font-weight: 500;"></span>
+            <div class="form-grid">
+                <div class="form-card">
+                    <h3>Información General</h3>
+                    <div class="detail-grid" th:if="${producto != null}">
+                        <div class="detail-item">
+                            <label>Categoría</label>
+                            <span th:text="${producto.tipoProducto != null ? producto.tipoProducto.nombre : 'Sin Categoría'}"
+                                style="font-size: 1.1rem; font-weight: 500;"></span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Precio Unitario</label>
+                            <span th:text="${'$' + #numbers.formatDecimal(producto.precioUnitario, 1, 'COMMA', 2, 'POINT')}"
+                                style="color: var(--primary); font-weight: 600; font-size: 1.2rem;"></span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Unidad de Medida</label>
+                            <span th:text="${producto.unidadMedida}"></span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Marca / Modelo</label>
+                            <span th:text="${(producto.marca != null ? producto.marca : '-') + ' / ' + (producto.modelo != null ? producto.modelo : '-')}"></span>
+                        </div>
                     </div>
-                    <div class="detail-item">
-                        <label>Precio Unitario</label>
-                        <span th:text="${#numbers.formatCurrency(producto.precioUnitario)}" style="color: var(--primary); font-weight: 600; font-size: 1.2rem;"></span>
-                    </div>
-                    <div class="detail-item">
-                        <label>Unidad de Medida</label>
-                        <span th:text="${producto.unidadMedida}"></span>
-                    </div>
-                    <div class="detail-item">
-                        <label>Marca / Modelo</label>
-                        <span th:text="${(producto.marca != null ? producto.marca : '-') + ' / ' + (producto.modelo != null ? producto.modelo : '-')}"></span>
+                    <div class="detail-item" style="margin-top: 1.5rem;" th:if="${producto != null}">
+                        <label>Descripción</label>
+                        <p th:text="${producto.descripcion != null && !producto.descripcion.isEmpty() ? producto.descripcion : 'Sin descripción disponible.'}"
+                            th:style="'background: rgba(15, 23, 42, 0.4); padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); font-style: ' + (${producto.descripcion == null || producto.descripcion.isEmpty()} ? 'italic' : 'normal') + ';'">
+                        </p>
                     </div>
                 </div>
-                
-                <div class="detail-item" style="margin-top: 1.5rem;" th:if="${producto != null}">
-                    <label>Descripción</label>
-                    <p th:text="${producto.descripcion != null && !producto.descripcion.isEmpty() ? producto.descripcion : 'Sin descripción disponible.'}" 
-                       th:style="'background: rgba(15, 23, 42, 0.4); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); font-style: ' + (${producto.descripcion == null || producto.descripcion.isEmpty()} ? 'italic' : 'normal') + ';'"></p>
+
+                <div class="form-card">
+                    <h3>Totales e Inventario Activo</h3>
+                    <div class="detail-item" style="margin-bottom: 1.5rem;">
+                        <label>Total de Piezas Globales</label>
+                        <span th:text="${totalStock != null ? totalStock : '0.00'}" style="color: #10B981; font-weight: bold; font-size: 1.5rem;"></span>
+                    </div>
+
+                    <table class="premium-table" style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th style="text-align: left;">Almacén</th>
+                                <th>Existencia</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="inv : ${inventarios}">
+                                <td style="text-align: left;">
+                                    <strong th:text="${inv.almacen.nombre}"></strong>
+                                    <div style="font-size: 0.8rem; color: var(--text-muted);" th:text="${inv.almacen.ubicacion}"></div>
+                                </td>
+                                <td>
+                                    <span class="badge badge-success" th:text="${inv.cantidad}" style="font-size: 1.1rem;"></span>
+                                </td>
+                            </tr>
+                            <tr th:if="${inventarios == null || inventarios.isEmpty()}">
+                                <td colspan="2" style="text-align: center; color: var(--text-muted);">Sin stock registrado en almacenes</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
             <div class="form-actions">
                 <a th:href="@{/productos}" class="btn-ghost">← Volver al Catálogo</a>
-                <a th:href="@{/productos/editar/{sku}(sku=${producto.sku})}" class="btn-primary">Editar Producto</a>
+                <a th:href="@{/productos/editar/{sku}(sku=${producto.sku})}" class="btn-primary" sec:authorize="!hasRole('MOSTRADOR')">Editar Producto</a>
             </div>
         </div>
     </div>

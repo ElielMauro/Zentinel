@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -125,6 +126,30 @@ public class EstadisticasController {
         List<String> top25Labels = top25.stream().map(m -> (String) m.get("nombre")).collect(Collectors.toList());
         List<Object> top25Data   = top25.stream().map(m -> m.get("cantidad")).collect(Collectors.toList());
 
+        // ─── Recomendaciones de Compra por Temporada ──────────────────
+        int mesActual = LocalDateTime.now().getMonthValue();
+        String estacion = getEstacion(mesActual);
+        String descEstacion = getDescripcionEstacion(estacion, mesActual);
+
+        List<Object[]> recoRaw = salidaDetalleRepository.findRecomendacionesPorTemporada(
+                empresaId, mesActual, PageRequest.of(0, 10));
+        List<Map<String, Object>> recomendaciones = new ArrayList<>();
+        for (Object[] row : recoRaw) {
+            Map<String, Object> item = new LinkedHashMap<>();
+            Producto p = (Producto) row[0];
+            Number cant = (Number) row[1];
+            item.put("sku", p.getSku());
+            item.put("nombre", p.getNombre());
+            item.put("cantidad", cant);
+            // Calcular prioridad: Alta > 50, Media > 20, Baja
+            String prioridad;
+            if (cant.doubleValue() > 50) prioridad = "Alta";
+            else if (cant.doubleValue() > 20) prioridad = "Media";
+            else prioridad = "Baja";
+            item.put("prioridad", prioridad);
+            recomendaciones.add(item);
+        }
+
         model.addAttribute("entradasMes", entradasMes);
         model.addAttribute("salidasMes", salidasMes);
         model.addAttribute("totalSalidasMesMonto", totalSalidasMesMonto);
@@ -137,8 +162,30 @@ public class EstadisticasController {
         model.addAttribute("deptoData", deptoData);
         model.addAttribute("top25Labels", top25Labels);
         model.addAttribute("top25Data", top25Data);
+        model.addAttribute("recomendaciones", recomendaciones);
+        model.addAttribute("estacion", estacion);
+        model.addAttribute("descEstacion", descEstacion);
+        model.addAttribute("mesActualNombre", LocalDateTime.now().getMonth().getDisplayName(java.time.format.TextStyle.FULL, new java.util.Locale("es", "MX")));
 
         return "estadisticas";
+    }
+
+    // ─── Helpers de Estación ──────────────────────────────────────────────
+    private String getEstacion(int mes) {
+        if (mes >= 3 && mes <= 5) return "Primavera";
+        if (mes >= 6 && mes <= 8) return "Verano";
+        if (mes >= 9 && mes <= 11) return "Otoño";
+        return "Invierno";
+    }
+
+    private String getDescripcionEstacion(String estacion, int mes) {
+        return switch (estacion) {
+            case "Primavera" -> "Temporada de mayor actividad de obra y construcción. Se recomienda surtir materiales de acabado, pintura y herramientas.";
+            case "Verano"    -> "Temporada alta en proyectos exteriores e hidráulicos. Prioriza materiales de plomería, tuberías y selladores.";
+            case "Otoño"     -> "Inicio de temporada de mantenimiento preventivo. Enfócate en refacciones y materiales de cierre de proyectos.";
+            case "Invierno"  -> "Temporada de proyectos interiores y mantenimiento de instalaciones. Surtir materiales eléctricos y de aislamiento.";
+            default          -> "Analiza los datos históricos para tomar decisiones de surtido.";
+        };
     }
 
     // ─── Endpoint AJAX para buscar uso de un producto por departamentos ────

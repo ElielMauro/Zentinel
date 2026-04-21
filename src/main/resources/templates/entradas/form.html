@@ -14,6 +14,8 @@
                 <strong>Error:</strong> No se han agregado productos a la entrada.
             </div>
 
+
+
             <form th:action="@{/entradas/guardar}" th:object="${entrada}" method="post" class="premium-form"
                 id="entradaForm">
                 <div class="form-grid">
@@ -31,9 +33,9 @@
 
                     <div class="form-card">
                         <h3>Origen y Destino</h3>
-                        <div class="input-group">
+                        <div class="input-group" sec:authorize="hasAnyRole('SUPER_ADMIN', 'ADMIN_EMPRESA', 'ADMIN')">
                             <label>Proveedor</label>
-                            <select th:field="*{proveedor}" required>
+                            <select th:field="*{proveedor}" class="select-general">
                                 <option value="">Seleccione...</option>
                                 <option th:each="p : ${proveedores}" th:value="${p.id}" th:text="${p.nombreCorto}">
                                 </option>
@@ -50,30 +52,43 @@
                 </div>
 
                 <div class="form-card full-width">
+                    <h3>Descripción / Comentarios del Movimiento</h3>
+                    <textarea th:field="*{comentarios}" rows="3" cols="10"
+                        placeholder="Escriba aquí los comentarios o detalles de la entrada (este campo es amplio para su comodidad)..."
+                        style="width: 100%; box-sizing: border-box; resize: vertical; min-height: 120px; font-size: 1.1rem; padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(15,23,42,0.4); color: white;"></textarea>
+                </div>
+
+                <div class="form-card full-width">
                     <h3>Detalle de Productos</h3>
                     <table class="premium-table" id="tablaEntrada">
                         <thead>
                             <tr>
                                 <th>Producto</th>
                                 <th>Existencia</th>
-                                <th>Cantidad</th>
-                                <th>Precio Unitario</th>
+                                <th style="width: 150px;">Precio Unit.</th>
+                                <th style="width: 150px;">Cantidad</th>
                                 <th>Acción</th>
                             </tr>
                         </thead>
                         <tbody id="detallesBody">
                             <tr>
                                 <td>
-                                    <select name="productoSku" required onchange="updateStock(this)">
+                                    <select name="productoSku" required class="select-producto" onchange="updateRowData(this)">
                                         <option value="">Seleccione...</option>
                                         <option th:each="p : ${productos}" th:value="${p.sku}"
                                             th:text="${p.nombre + ' (' + p.sku + ')'}"></option>
                                     </select>
                                 </td>
                                 <td class="stock-feedback">---</td>
-                                <td><input type="number" name="cantidad" step="0.0001" min="0.0001" required></td>
-                                <td><input type="number" name="precio" step="0.01" min="0" required></td>
-                                <td><button type="button" class="btn-icon delete-row">🗑️</button></td>
+                                <td>
+                                    <input type="number" name="precio" class="price-field fancy-input" step="0.01" min="0" required>
+                                </td>
+                                <td>
+                                    <input type="number" name="cantidad" class="fancy-input" step="0.0001" min="0.0001" required>
+                                </td>
+                                <td style="text-align: center;"><button type="button" class="delete-row" title="Eliminar fila">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                </button></td>
                             </tr>
                         </tbody>
                     </table>
@@ -91,11 +106,21 @@
     <script th:inline="javascript">
         /*<![CDATA[*/
         const inventoryMap = {};
-        const inventarioActivo = /*[[${inventarioActivo}]]*/ [];
+        const productMetadata = {};
+        const inventarioActivo = /*[[${inventarioActivo}]]*/[];
+        const listaProductos = /*[[${productos}]]*/[];
+
+        if (Array.isArray(listaProductos)) {
+            listaProductos.forEach(p => {
+                productMetadata[p.sku] = { aceptaDecimales: p.aceptaDecimales };
+            });
+        }
+        
         if (Array.isArray(inventarioActivo)) {
             inventarioActivo.forEach(inv => {
-                if (inv && inv.producto && inv.producto.sku) {
-                    inventoryMap[inv.producto.sku] = inv.cantidad || 0;
+                const sku = inv.sku || (inv.producto ? inv.producto.sku : null);
+                if (sku) {
+                    inventoryMap[sku] = inv.cantidad || 0;
                 }
             });
         }
@@ -108,20 +133,50 @@
                     field: "text",
                     direction: "asc"
                 },
-                placeholder: "Buscar producto...",
-                allowEmptyOption: true
+                placeholder: "Escribe para buscar...",
+                allowEmptyOption: true,
+                maxOptions: 10,
+                searchField: "text"
             });
         }
 
         // Initialize existing selects
-        document.querySelectorAll('select[name="productoSku"]').forEach(el => initTomSelect(el));
+        document.querySelectorAll('.select-producto, .select-general').forEach(el => initTomSelect(el));
 
-        function updateStock(selectElement) {
+        function updateRowData(selectElement) {
             const sku = selectElement.value;
             const row = selectElement.closest('tr');
             const feedback = row.querySelector('.stock-feedback');
-            if (sku && inventoryMap[sku] !== undefined) {
-                feedback.textContent = inventoryMap[sku];
+            const priceField = row.querySelector('.price-field');
+            const qtyField = row.querySelector('input[name="cantidad"]');
+
+            if (sku && productMetadata[sku]) {
+                const meta = productMetadata[sku];
+                // Ajustar validación decimal
+                if (meta.aceptaDecimales) {
+                    qtyField.setAttribute('step', '0.0001');
+                } else {
+                    qtyField.setAttribute('step', '1');
+                    // Si ya tiene decimales, truncar
+                    if (qtyField.value) qtyField.value = Math.floor(qtyField.value);
+                }
+
+                if (inventoryMap[sku] !== undefined) {
+                    const stock = inventoryMap[sku];
+                    feedback.textContent = meta.aceptaDecimales ? stock : Math.floor(stock);
+                    feedback.style.color = (stock <= 0) ? '#EF4444' : 'inherit';
+                    feedback.style.fontWeight = (stock <= 0) ? 'bold' : 'normal';
+                } else {
+                    feedback.textContent = '0';
+                }
+                
+                // Pre-fill price
+                const productData = Array.isArray(inventarioActivo) ? 
+                    inventarioActivo.find(p => (p.sku === sku || (p.producto && p.producto.sku === sku))) : null;
+                
+                if (productData && priceField && !priceField.value) {
+                    priceField.value = productData.precio || '';
+                }
             } else {
                 feedback.textContent = '0';
             }
@@ -133,28 +188,28 @@
             if (!firstRow) return;
 
             const newRow = firstRow.cloneNode(true);
+
+            // Fix TomSelect clone issue gracefully
+            const firstSelect = firstRow.querySelector('select.select-producto');
+            const newTd = newRow.querySelector('td');
+            newTd.innerHTML = ''; // Limpiar clonado sucio
             
-            // Tom Select clones the wrapper, we only want the original select
-            const tsWrapper = newRow.querySelector('.ts-wrapper');
-            if (tsWrapper) {
-                const originalSelect = tsWrapper.previousElementSibling;
-                tsWrapper.remove();
-                originalSelect.style.display = 'block'; 
-                originalSelect.classList.remove('tomselected');
-                originalSelect.removeAttribute('id');
-            }
+            const clonedSelect = firstSelect.cloneNode(true);
+            clonedSelect.classList.remove('tomselected', 'ts-hidden-accessible');
+            clonedSelect.removeAttribute('id');
+            clonedSelect.removeAttribute('tabindex');
+            clonedSelect.style.display = '';
+            clonedSelect.value = '';
+            
+            newTd.appendChild(clonedSelect);
 
             // Limpiar valores
             newRow.querySelectorAll('input').forEach(i => i.value = '');
-            const select = newRow.querySelector('select');
-            if (select) {
-                select.value = '';
-                setTimeout(() => initTomSelect(select), 10);
-            }
-            
+            setTimeout(() => initTomSelect(clonedSelect), 10);
+
             const feedback = newRow.querySelector('.stock-feedback');
             if (feedback) feedback.textContent = '---';
-            
+
             body.appendChild(newRow);
         });
 
@@ -171,11 +226,16 @@
 
         document.getElementById('entradaForm').addEventListener('submit', function (e) {
             const rowCount = document.getElementById('detallesBody').rows.length;
-            const firstSku = document.querySelector('select[name="productoSku"]').value;
+            const selects = document.querySelectorAll('select[name="productoSku"]');
+            let hasValidProduct = false;
+            
+            selects.forEach(s => {
+                if (s.value) hasValidProduct = true;
+            });
 
-            if (rowCount === 0 || (rowCount === 1 && !firstSku)) {
+            if (rowCount === 0 || !hasValidProduct) {
                 e.preventDefault();
-                alert('¡ERROR! Debe agregar al menos un objeto al registro antes de continuar.');
+                alert('¡ERROR! Debe agregar al menos un producto al registro antes de continuar.');
             }
         });
     </script>

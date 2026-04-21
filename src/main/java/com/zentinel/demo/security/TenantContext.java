@@ -8,16 +8,20 @@ import org.springframework.security.core.context.SecurityContextHolder;
 public class TenantContext {
 
     public static Integer getCurrentEmpresaId(HttpSession session) {
-        // 1. Prioridad: Empresa seleccionada en sesión (Contexto de Gestión para Super Admin)
+        // 1. Prioridad: Empresa seleccionada en sesión (Contexto de Gestión para Super
+        // Admin)
         Empresa sessionEmpresa = (Empresa) session.getAttribute("currentEmpresa");
         if (sessionEmpresa != null) {
             return sessionEmpresa.getId();
         }
 
         // 2. Si no hay sesión (o es usuario normal), obtener de UsuarioPrincipal
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal instanceof UsuarioPrincipal) {
-            return ((UsuarioPrincipal) principal).getEmpresaId();
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null) {
+            Object principal = auth.getPrincipal();
+            if (principal instanceof UsuarioPrincipal) {
+                return ((UsuarioPrincipal) principal).getEmpresaId();
+            }
         }
 
         return null;

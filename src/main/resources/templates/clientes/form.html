@@ -31,9 +31,9 @@
                         <h3>Clasificación y Contacto</h3>
                         <div class="input-group">
                             <label>Tipo de Cliente</label>
-                            <select th:field="*{tipoCliente}" required>
+                            <select name="tipoCliente.id" id="tipoCliente" required>
                                 <option value="">Seleccione...</option>
-                                <option th:each="t : ${tiposCliente}" th:value="${t.id}" th:text="${t.nombre}"></option>
+                                <option th:each="t : ${tiposCliente}" th:value="${t.id}" th:text="${t.nombre}" th:selected="${cliente.tipoCliente != null and cliente.tipoCliente.id == t.id}"></option>
                             </select>
                         </div>
                         <div class="input-group">

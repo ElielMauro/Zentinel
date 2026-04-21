@@ -29,6 +29,7 @@
                     <tr>
                         <th>Folio</th>
                         <th>Fecha</th>
+                        <th>Almacén</th>
                         <th>Área</th>
                         <th>Solicitante</th>
                         <th>Total</th>
@@ -39,25 +40,29 @@
                 <tbody>
                     <tr th:each="s : ${listaSalidas}">
                         <td>
-                            <a th:href="@{/salidas/detalle/{f}(f=${s.folio})}" 
-                               style="color: var(--primary); text-decoration: none; font-weight: 600;" 
+                            <a th:href="@{/salidas/detalle/{f}(f=${s.folio})}"
+                               style="color: var(--primary); text-decoration: none; font-weight: 600;"
                                th:text="${s.folio}"></a>
                         </td>
                         <td th:text="${#temporals.format(s.fecha, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td th:text="${s.almacenOrigen != null ? s.almacenOrigen.nombre : 'N/A'}"></td>
                         <td th:text="${s.area != null ? s.area.nombre : 'N/A'}"></td>
-                        <td th:text="${s.usuarioSolicitante.nombre + ' ' + s.usuarioSolicitante.apellidoPaterno}"></td>
-                        <td th:text="${'$' + s.total}"></td>
+                        <td th:text="${s.nombreSolicitante != null ? s.nombreSolicitante : 'N/A'}"></td>
+                        <td th:text="${s.total != null ? '$' + s.total : '$0.00'}"></td>
                         <td>
-                            <span th:class="${'badge ' + (s.cancelado ? 'badge-danger' : 'badge-success')}"
-                                th:text="${s.cancelado ? 'Cancelado' : s.estatus}"></span>
+                            <span th:class="${'badge ' + (s.cancelado ? 'badge-danger' : (s.facturado ? 'badge-primary' : 'badge-success'))}"
+                                th:text="${s.cancelado ? 'Cancelado' : (s.facturado ? 'Facturado' : s.estatus)}"></span>
                         </td>
                         <td style="display: flex; gap: 0.5rem;">
                             <a th:href="@{/salidas/detalle/{f}(f=${s.folio})}" class="btn-icon" title="Ver Detalle">👁️</a>
                             <a th:href="@{/salidas/reporte/{f}(f=${s.folio})}" class="btn-icon" title="Imprimir">🖨️</a>
+                            <a sec:authorize="hasAnyRole('SUPER_ADMIN','ADMIN_EMPRESA','ADMIN')"
+                               th:if="${!s.facturado}"
+                               th:href="@{/salidas/editar/{f}(f=${s.folio})}" class="btn-icon" title="Editar">✏️</a>
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(listaSalidas)}">
-                        <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                        <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">
                             No hay salidas registradas.
                         </td>
                     </tr>

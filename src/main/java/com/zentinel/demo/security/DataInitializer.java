@@ -62,6 +62,7 @@ public class DataInitializer implements CommandLineRunner {
                 Area area = new Area();
                 area.setNombre(nombreArea);
                 area.setDescripcion("Departamento de " + nombreArea);
+                area.setEmpresa(emp);
                 areaRepository.save(area);
             }
         }

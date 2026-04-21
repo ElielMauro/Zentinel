@@ -20,8 +20,13 @@ public class ClienteController {
     }
 
     @GetMapping
-    public String list(Model model) {
-        model.addAttribute("listaClientes", clienteRepository.findAll());
+    public String list(Model model, jakarta.servlet.http.HttpSession session) {
+        Integer empresaId = com.zentinel.demo.security.TenantContext.getCurrentEmpresaId(session);
+        if (empresaId != null) {
+            model.addAttribute("listaClientes", clienteRepository.findByEmpresa_Id(empresaId));
+        } else {
+            model.addAttribute("listaClientes", new java.util.ArrayList<>());
+        }
         return "clientes";
     }
 
@@ -33,8 +38,24 @@ public class ClienteController {
     }
 
     @PostMapping("/guardar")
-    public String save(@ModelAttribute Cliente cliente) {
+    public String save(@ModelAttribute Cliente cliente, jakarta.servlet.http.HttpSession session) {
+        if (cliente.getEmpresa() == null) {
+            Integer empresaId = com.zentinel.demo.security.TenantContext.getCurrentEmpresaId(session);
+            if (empresaId != null) {
+                com.zentinel.demo.models.Empresa emp = new com.zentinel.demo.models.Empresa();
+                emp.setId(empresaId);
+                cliente.setEmpresa(emp);
+            }
+        }
         clienteRepository.save(cliente);
+        return "redirect:/clientes";
+    }
+
+    @PostMapping("/tipo/guardar")
+    public String saveTipo(@RequestParam String nombre) {
+        com.zentinel.demo.models.TipoCliente tc = new com.zentinel.demo.models.TipoCliente();
+        tc.setNombre(nombre);
+        tipoClienteRepository.save(tc);
         return "redirect:/clientes";
     }
 }

@@ -48,6 +48,9 @@ public class Salida {
     @Column(name = "nombre_solicitante", length = 100)
     private String nombreSolicitante;
 
+    @Column(name = "tipo_cliente", length = 50)
+    private String tipoCliente;
+
     @Column(length = 20)
     private String estatus;
 
@@ -77,7 +80,7 @@ public class Salida {
     @Column(name = "motivo_cancelacion", length = 255)
     private String motivoCancelacion;
 
-    @OneToMany(mappedBy = "salida", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "salida", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SalidaDetalle> detalles;
 
     @ManyToOne

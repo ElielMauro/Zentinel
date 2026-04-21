@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Zentinel | Búsqueda de Facturas')}"></head>
+
+<body>
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/topbar :: topbar('Facturación', 'Cierre de reportes consolidados')}"></div>
+
+        <div class="content-wrapper">
+            <div class="header-section">
+                <h1>Módulo de Facturación</h1>
+                <p style="color: var(--text-muted);">Ingrese el número de reporte para visualizar las salidas agrupadas y proceder con el cierre y facturación del documento.</p>
+            </div>
+
+            <div class="form-card" style="max-width: 600px; margin: 0 auto; padding: 2rem;">
+                <h3 style="margin-bottom: 1.5rem; text-align: center;">Buscar Reporte</h3>
+                <form onsubmit="event.preventDefault(); buscarReporte();" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <div class="input-group">
+                        <label>Número de Reporte</label>
+                        <input type="text" id="numReporte" required placeholder="Ej. REP-2024-001" style="font-size: 1.2rem; text-align: center; padding: 1rem;">
+                    </div>
+                    
+                    <button type="submit" class="btn-primary" style="width: 100%; font-size: 1.1rem; padding: 1rem;">
+                        Buscar y Agrupar Salidas
+                    </button>
+                    
+                    <a href="/salidas" class="btn-ghost" style="text-align: center; text-decoration: none;">Cancelar y volver</a>
+                </form>
+            </div>
+
+            <script>
+                function buscarReporte() {
+                    const numReporte = document.getElementById('numReporte').value.trim();
+                    if(numReporte) {
+                        window.location.href = '/salidas/facturacion/' + encodeURIComponent(numReporte);
+                    }
+                }
+            </script>
+        </div>
+    </div>
+</body>
+</html>

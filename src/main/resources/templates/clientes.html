@@ -8,7 +8,8 @@
     <div class="main-content">
         <div th:replace="~{fragments/topbar :: topbar('Cartera de Clientes', 'Gestión de clientes del almacén')}"></div>
 
-        <div style="margin-bottom: 2rem; display: flex; justify-content: flex-end;">
+        <div style="margin-bottom: 2rem; display: flex; justify-content: flex-end; gap: 1rem;">
+            <button type="button" class="btn" style="background-color: var(--surface); color: white; border: 1px solid rgba(255,255,255,0.1);" onclick="document.getElementById('modalTipoCliente').style.display='flex'">+ Nuevo Tipo</button>
             <a th:href="@{/clientes/nuevo}" class="btn-add">+ Nuevo Cliente</a>
         </div>
 
@@ -39,6 +40,25 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
+    </div>
+
+    <!-- Modal Tipo Cliente -->
+    <div id="modalTipoCliente" class="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); backdrop-filter:blur(4px); align-items:center; justify-content:center; z-index:50;">
+        <div class="modal-content" style="background:var(--surface); padding:2rem; border-radius:16px; width:400px; border:1px solid rgba(255,255,255,0.1);">
+            <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
+                <h3 style="margin:0;">Nuevo Tipo de Cliente</h3>
+                <button onclick="document.getElementById('modalTipoCliente').style.display='none'" style="background:none; border:none; color:white; cursor:pointer;">&times;</button>
+            </div>
+            <form th:action="@{/clientes/tipo/guardar}" method="post">
+                <div class="input-group">
+                    <label>Nombre del Tipo</label>
+                    <input type="text" name="nombre" required style="width:100%; padding:0.75rem; border-radius:8px; background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.1); color:white; box-sizing:border-box;">
+                </div>
+                <div style="text-align: right; margin-top: 1.5rem;">
+                    <button type="submit" class="btn-primary">Guardar</button>
+                </div>
+            </form>
         </div>
     </div>
 </body>

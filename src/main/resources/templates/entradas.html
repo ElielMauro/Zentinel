@@ -45,13 +45,15 @@
                         <td th:text="${#temporals.format(e.fechaFactura, 'dd/MM/yyyy HH:mm')}"></td>
                         <td th:text="${e.proveedor != null ? e.proveedor.nombreCorto : 'N/A'}"></td>
                         <td th:text="${e.almacenDestino != null ? e.almacenDestino.nombre : 'N/A'}"></td>
-                        <td th:text="${'$' + e.total}"></td>
+                        <td th:text="${e.total != null ? '$' + e.total : '$0.00'}"></td>
                         <td>
                             <span th:class="${'badge ' + (e.cancelado ? 'badge-danger' : 'badge-success')}"
                                 th:text="${e.cancelado ? 'Cancelado' : 'Activo'}"></span>
                         </td>
                         <td>
                             <a th:href="@{/entradas/detalle/{id}(id=${e.id})}" class="btn-icon" title="Ver Detalle">👁️</a>
+                            <a sec:authorize="hasAnyRole('SUPER_ADMIN','ADMIN_EMPRESA','ADMIN')"
+                               th:href="@{/entradas/editar/{id}(id=${e.id})}" class="btn-icon" title="Editar">✏️</a>
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(listaEntradas)}">

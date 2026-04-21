@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AreaRepository extends JpaRepository<Area, Integer> {
+    java.util.List<Area> findByEmpresa_Id(Integer empresaId);
 }

@@ -33,6 +33,7 @@ public class AlmacenController {
     @GetMapping("/nuevo")
     public String form(Model model) {
         model.addAttribute("almacen", new Almacen());
+        model.addAttribute("empresas", empresaRepository.findAll());
         return "almacenes/form";
     }
 
@@ -41,6 +42,7 @@ public class AlmacenController {
         Almacen almacen = almacenService.findById(id);
         if (almacen == null) return "redirect:/almacenes";
         model.addAttribute("almacen", almacen);
+        model.addAttribute("empresas", empresaRepository.findAll());
         return "almacenes/form";
     }
 

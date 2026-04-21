@@ -36,7 +36,14 @@ public class UsuarioController {
             model.addAttribute("usuarios", usuarioService.findAll());
         } else if (empresaId != null) {
             // Todos los demás (o SA con contexto) ven los de la empresa
-            model.addAttribute("usuarios", usuarioService.findByEmpresaId(empresaId));
+            List<Usuario> usuarios = usuarioService.findByEmpresaId(empresaId);
+            
+            // Filtramos a los SUPER_ADMIN para que no sean visibles por otros roles en la empresa
+            List<Usuario> listadoFiltrado = usuarios.stream()
+                .filter(u -> !"SUPER_ADMIN".equals(u.getRol()))
+                .toList();
+            
+            model.addAttribute("usuarios", listadoFiltrado);
         } else {
             model.addAttribute("usuarios", new java.util.ArrayList<>());
         }
@@ -110,5 +117,29 @@ public class UsuarioController {
         usuarioService.activar(id);
         redirectAttributes.addFlashAttribute("mensaje", "Usuario activado correctamente.");
         return "redirect:/usuarios";
+    }
+
+    @PostMapping("/cambiar-password")
+    public String cambiarPassword(@RequestParam String usuarioId, @RequestParam String nuevaPassword, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        Usuario user = usuarioService.findById(usuarioId);
+        if (user != null) {
+            user.setPassword(nuevaPassword);
+            usuarioService.save(user);
+            redirectAttributes.addFlashAttribute("mensaje", "Contraseña actualizada correctamente.");
+        }
+        return "redirect:/usuarios";
+    }
+
+    @PostMapping("/mi-password")
+    public String cambiarMiPassword(@RequestParam String nuevaPassword, org.springframework.security.core.Authentication auth, jakarta.servlet.http.HttpServletRequest request) {
+        if (auth != null && auth.getName() != null) {
+            Usuario user = usuarioService.findById(auth.getName());
+            if (user != null) {
+                user.setPassword(nuevaPassword);
+                usuarioService.save(user);
+            }
+        }
+        String referer = request.getHeader("Referer");
+        return "redirect:" + (referer != null ? referer : "/");
     }
 }
