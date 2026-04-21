@@ -1,6 +1,7 @@
 package com.zentinel.demo.controllers;
 
 import com.zentinel.demo.models.Cliente;
+import com.zentinel.demo.models.TipoCliente;
 import com.zentinel.demo.repositories.ClienteRepository;
 import com.zentinel.demo.repositories.TipoClienteRepository;
 import org.springframework.stereotype.Controller;
@@ -38,7 +39,15 @@ public class ClienteController {
     }
 
     @PostMapping("/guardar")
-    public String save(@ModelAttribute Cliente cliente, jakarta.servlet.http.HttpSession session) {
+    public String save(@ModelAttribute Cliente cliente,
+                       @RequestParam(value = "tipoClienteId", required = false) Integer tipoClienteId,
+                       jakarta.servlet.http.HttpSession session) {
+        // Resolver TipoCliente por ID
+        if (tipoClienteId != null) {
+            TipoCliente tc = tipoClienteRepository.findById(tipoClienteId).orElse(null);
+            cliente.setTipoCliente(tc);
+        }
+        // Asignar empresa del contexto
         if (cliente.getEmpresa() == null) {
             Integer empresaId = com.zentinel.demo.security.TenantContext.getCurrentEmpresaId(session);
             if (empresaId != null) {

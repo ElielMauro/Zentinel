@@ -4,6 +4,7 @@ import com.zentinel.demo.models.*;
 import com.zentinel.demo.services.*;
 import com.zentinel.demo.repositories.UsuarioRepository;
 import com.zentinel.demo.repositories.AreaRepository;
+import com.zentinel.demo.repositories.ClienteRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +27,7 @@ public class SalidaController {
     private final AlmacenService almacenService;
     private final UsuarioRepository usuarioRepository;
     private final AreaRepository areaRepository;
+    private final ClienteRepository clienteRepository;
     private final com.zentinel.demo.repositories.InventarioRepository inventarioRepository;
 
     public SalidaController(SalidaService salidaService,
@@ -33,12 +35,14 @@ public class SalidaController {
             AlmacenService almacenService,
             UsuarioRepository usuarioRepository,
             AreaRepository areaRepository,
+            ClienteRepository clienteRepository,
             com.zentinel.demo.repositories.InventarioRepository inventarioRepository) {
         this.salidaService = salidaService;
         this.productoService = productoService;
         this.almacenService = almacenService;
         this.usuarioRepository = usuarioRepository;
         this.areaRepository = areaRepository;
+        this.clienteRepository = clienteRepository;
         this.inventarioRepository = inventarioRepository;
     }
 
@@ -72,7 +76,7 @@ public class SalidaController {
         model.addAttribute("salida", new Salida());
         model.addAttribute("productos", productoService.findByEmpresaId(empresaId));
         model.addAttribute("almacenes", almacenService.findByUser(currentUser));
-        model.addAttribute("areas", areaRepository.findByEmpresa_Id(empresaId));
+        model.addAttribute("clientes", clienteRepository.findByEmpresa_Id(empresaId));
         model.addAttribute("usuarioActual", currentUser);
 
         if (activeAlmacen != null) {
@@ -103,8 +107,17 @@ public class SalidaController {
             @RequestParam("productoId") List<String> skus,
             @RequestParam("cantidad") List<java.math.BigDecimal> cantidades,
             @RequestParam(value = "precioUnitario", required = false) List<java.math.BigDecimal> precios,
+            @RequestParam(value = "clienteId", required = false) Integer clienteId,
             Principal principal,
             jakarta.servlet.http.HttpSession session) {
+
+        // Asignar cliente si viene
+        if (clienteId != null) {
+            clienteRepository.findById(clienteId).ifPresent(c -> {
+                salida.setNombreSolicitante(c.getNombre());
+                salida.setTipoCliente(c.getTipoCliente() != null ? c.getTipoCliente().getNombre() : null);
+            });
+        }
 
         Integer empresaId = com.zentinel.demo.security.TenantContext.getCurrentEmpresaId(session);
         if (empresaId != null) {

@@ -31,10 +31,11 @@
                             </select>
                         </div>
                         <div class="input-group">
-                            <label>Área Destino</label>
-                            <select th:field="*{area}" required>
-                                <option value="">Seleccione Área...</option>
-                                <option th:each="area : ${areas}" th:value="${area.id}" th:text="${area.nombre}">
+                            <label>Cliente</label>
+                            <select name="clienteId" id="clienteId" required>
+                                <option value="">Seleccione Cliente...</option>
+                                <option th:each="c : ${clientes}" th:value="${c.id}"
+                                    th:text="${c.nombre + (c.codigo != null ? ' (' + c.codigo + ')' : '')}">
                                 </option>
                             </select>
                         </div>
