@@ -33,19 +33,20 @@
     </div>
 
     <!-- GRÁFICAS -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
-
-        <!-- Gráfica: Consumo por Departamento -->
+    <!-- Gráfica: Consumo por Departamento (sola en su fila) -->
+    <div style="margin-bottom: 1.5rem;">
         <div class="chart-card">
             <h4 class="chart-title">💳 Gasto por Departamento (Mes Actual)</h4>
-            <canvas id="chartDepartamentos" height="300"></canvas>
+            <div style="max-width: 500px; margin: 0 auto;">
+                <canvas id="chartDepartamentos" height="280"></canvas>
+            </div>
         </div>
+    </div>
 
-        <!-- Gráfica: Top 25 (barra horizontal) -->
-        <div class="chart-card">
-            <h4 class="chart-title">📊 Top 25 Productos Más Usados</h4>
-            <canvas id="chartTop25" height="300"></canvas>
-        </div>
+    <!-- Gráfica: Top 25 Productos (ancho completo, más alta) -->
+    <div class="chart-card" style="margin-bottom: 2rem;">
+        <h4 class="chart-title">📊 Top 25 Productos Más Usados</h4>
+        <canvas id="chartTop25"></canvas>
     </div>
 
     <!-- Búsqueda de producto por SKU -->
@@ -208,14 +209,18 @@
     });
 
     // ─── Gráfica Top 25 ────────────────────────────────────────────────────────
-    new Chart(document.getElementById('chartTop25'), {
+    const top25Canvas = document.getElementById('chartTop25');
+    const top25Count  = top25Labels.length > 0 ? top25Labels.length : 1;
+    top25Canvas.style.height = Math.max(320, top25Count * 28 + 60) + 'px';
+
+    new Chart(top25Canvas, {
         type: 'bar',
         data: {
             labels: top25Labels.length > 0 ? top25Labels : ['Sin datos'],
             datasets: [{
                 label: 'Cantidad',
                 data: top25Data.length > 0 ? top25Data : [0],
-                backgroundColor: 'rgba(99, 102, 241, 0.8)',
+                backgroundColor: palette,
                 borderRadius: 6,
                 borderSkipped: false
             }]
@@ -223,10 +228,14 @@
         options: {
             indexAxis: 'y',
             responsive: true,
-            plugins: { legend: { display: false } },
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.x} unidades` } }
+            },
             scales: {
                 x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
-                y: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } }
+                y: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 11 } } }
             }
         }
     });
