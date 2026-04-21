@@ -2,7 +2,16 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <body>
-    <div th:fragment="topbar(title, description)" class="header">
+    <div th:fragment="topbar(title, description)" class="header" style="flex-wrap: wrap;">
+        <!-- Bloque de Mensajes / Alertas Globales -->
+        <div th:if="${mensaje or error}" style="width: 100%; margin-bottom: 1rem;">
+            <div th:if="${mensaje}" style="padding: 1rem; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: #10B981; border-radius: 12px; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span>✅</span> <span th:text="${mensaje}"></span>
+            </div>
+            <div th:if="${error}" style="padding: 1rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #EF4444; border-radius: 12px; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span>⚠️</span> <span th:text="${error}"></span>
+            </div>
+        </div>
         <div>
             <h1 th:text="${title}">Título</h1>
             <p th:if="${description}" th:text="${description}" style="color: var(--text-muted); margin-top: 5px;"></p>
@@ -22,6 +31,19 @@
                 <a th:href="@{/almacen-selector}"
                     style="text-decoration: none; font-size: 0.8rem; margin-left: 0.5rem; opacity: 0.7;"
                     title="Cambiar Almacén">🔄</a>
+            </div>
+
+            <!-- Indicador de Empresa para Super Admin -->
+            <div th:if="${session.currentEmpresa}" 
+                 style="display: flex; align-items: center; gap: 0.5rem; background: rgba(16, 185, 129, 0.1); padding: 0.4rem 0.8rem; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.2);">
+                 <span style="font-size: 1.1rem;">🏢</span>
+                 <div style="line-height: 1.2;">
+                    <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Empresa Gestionando</div>
+                    <div style="font-size: 0.9rem; font-weight: 600; color: #10B981;" th:text="${session.currentEmpresa.nombre}">Nombre Empresa</div>
+                 </div>
+                 <a th:href="@{/zentinel-master/empresas/salir}" 
+                    style="text-decoration: none; font-size: 0.8rem; margin-left: 0.5rem; color: #EF4444; font-weight: bold;" 
+                    title="Quitar filtro de empresa">✖</a>
             </div>
 
             <span style="color: var(--text-muted)">Hola, <span sec:authentication="name"

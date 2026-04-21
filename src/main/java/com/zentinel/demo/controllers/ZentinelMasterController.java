@@ -65,5 +65,11 @@ public class ZentinelMasterController {
         }
         return "redirect:/"; // Redirigir al dashboard de esa empresa
     }
+    @GetMapping("/empresas/salir")
+    public String salirEmpresa(jakarta.servlet.http.HttpSession session) {
+        session.removeAttribute("currentEmpresa");
+        session.removeAttribute("activeAlmacen");
+        return "redirect:/";
+    }
 }
 

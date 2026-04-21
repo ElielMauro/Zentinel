@@ -41,30 +41,39 @@ public class ClienteController {
     @PostMapping("/guardar")
     public String save(@ModelAttribute Cliente cliente,
                        @RequestParam(value = "tipoClienteId", required = false) Integer tipoClienteId,
-                       jakarta.servlet.http.HttpSession session) {
+                       jakarta.servlet.http.HttpSession session,
+                       org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         
-        // 1. Resolver Tipo de Cliente
-        if (tipoClienteId != null) {
-            TipoCliente tc = tipoClienteRepository.findById(tipoClienteId).orElse(null);
-            cliente.setTipoCliente(tc);
-        }
+        try {
+            // 1. Resolver Tipo de Cliente
+            if (tipoClienteId != null) {
+                TipoCliente tc = tipoClienteRepository.findById(tipoClienteId).orElse(null);
+                cliente.setTipoCliente(tc);
+            }
 
-        // 2. Garantizar Empresa (Multi-tenant)
-        Integer empresaId = com.zentinel.demo.security.TenantContext.getCurrentEmpresaId(session);
-        if (empresaId != null) {
+            // 2. Garantizar Empresa (Multi-tenant)
+            Integer empresaId = com.zentinel.demo.security.TenantContext.getCurrentEmpresaId(session);
+            if (empresaId == null) {
+                throw new RuntimeException("Error: No hay una empresa activa en el sistema. Asegúrate de haber seleccionado una empresa si eres Administrador.");
+            }
+
             com.zentinel.demo.models.Empresa emp = new com.zentinel.demo.models.Empresa();
             emp.setId(empresaId);
             cliente.setEmpresa(emp);
+
+            // 3. Metadatos
+            if (cliente.getFechaRegistro() == null) {
+                cliente.setFechaRegistro(java.time.LocalDateTime.now());
+            }
+
+            // 4. Guardar
+            clienteRepository.save(cliente);
+            redirectAttributes.addFlashAttribute("mensaje", "Cliente '" + cliente.getNombre() + "' guardado exitosamente.");
+            
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Fallo al guardar cliente: " + e.getMessage());
         }
 
-        // 3. Metadatos
-        if (cliente.getFechaRegistro() == null) {
-            cliente.setFechaRegistro(java.time.LocalDateTime.now());
-        }
-
-        // 4. Guardar
-        clienteRepository.save(cliente);
-        
         return "redirect:/clientes";
     }
 

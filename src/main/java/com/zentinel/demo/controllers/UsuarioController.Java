@@ -62,37 +62,47 @@ public class UsuarioController {
     @PostMapping("/guardar")
     public String guardarUsuario(@ModelAttribute Usuario usuario,
                                  @RequestParam(value = "almacenIds", required = false) List<Integer> almacenIds,
-                                 jakarta.servlet.http.HttpSession session) {
-        // Asignar empresa del contexto si el usuario no tiene una (para creación desde gestión)
-        Integer empresaId = null;
-        if (usuario.getEmpresa() == null) {
-            empresaId = com.zentinel.demo.security.TenantContext.getCurrentEmpresaId(session);
-            if (empresaId != null) {
-                com.zentinel.demo.models.Empresa emp = new com.zentinel.demo.models.Empresa();
-                emp.setId(empresaId);
-                usuario.setEmpresa(emp);
-            }
-        } else {
-            empresaId = usuario.getEmpresa().getId();
-        }
-
-        // Asignar almacenes seleccionados al usuario
-        if (almacenIds != null && !almacenIds.isEmpty()) {
-            Set<Almacen> almacenes = new HashSet<>();
-            for (Integer almacenId : almacenIds) {
-                Almacen alm = almacenService.findById(almacenId);
-                if (alm != null) {
-                    almacenes.add(alm);
+                                 jakarta.servlet.http.HttpSession session,
+                                 org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        try {
+            // Asignar empresa del contexto si el usuario no tiene una (para creación desde gestión)
+            Integer empresaId = null;
+            if (usuario.getEmpresa() == null) {
+                empresaId = com.zentinel.demo.security.TenantContext.getCurrentEmpresaId(session);
+                if (empresaId != null) {
+                    com.zentinel.demo.models.Empresa emp = new com.zentinel.demo.models.Empresa();
+                    emp.setId(empresaId);
+                    usuario.setEmpresa(emp);
                 }
+            } else {
+                empresaId = usuario.getEmpresa().getId();
             }
-            usuario.setAlmacenes(almacenes);
-        } else if (empresaId != null) {
-            // Si no se seleccionaron almacenes específicos, asignar TODOS los de la empresa
-            List<Almacen> todosAlmacenes = almacenService.findByEmpresaId(empresaId);
-            usuario.setAlmacenes(new HashSet<>(todosAlmacenes));
-        }
 
-        usuarioService.save(usuario);
+            if (empresaId == null) {
+                throw new RuntimeException("No se detectó una empresa activa para asignar al usuario.");
+            }
+
+            // Asignar almacenes seleccionados al usuario
+            if (almacenIds != null && !almacenIds.isEmpty()) {
+                Set<Almacen> almacenes = new HashSet<>();
+                for (Integer almacenId : almacenIds) {
+                    Almacen alm = almacenService.findById(almacenId);
+                    if (alm != null) {
+                        almacenes.add(alm);
+                    }
+                }
+                usuario.setAlmacenes(almacenes);
+            } else {
+                // Si no se seleccionaron almacenes específicos, asignar TODOS los de la empresa
+                List<Almacen> todosAlmacenes = almacenService.findByEmpresaId(empresaId);
+                usuario.setAlmacenes(new HashSet<>(todosAlmacenes));
+            }
+
+            usuarioService.save(usuario);
+            redirectAttributes.addFlashAttribute("mensaje", "Usuario '" + usuario.getUsuario() + "' guardado correctamente.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error al guardar usuario: " + e.getMessage());
+        }
         return "redirect:/usuarios";
     }
 
