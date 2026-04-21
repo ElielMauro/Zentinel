@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <body>
-    <div th:fragment="topbar(title, description)" class="header" style="flex-wrap: wrap;">
+    <div th:fragment="topbar(title, description)" class="header">
         <!-- Bloque de Mensajes / Alertas Globales -->
         <div th:if="${mensaje or error}" style="width: 100%; margin-bottom: 1rem;">
             <div th:if="${mensaje}" style="padding: 1rem; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: #10B981; border-radius: 12px; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
