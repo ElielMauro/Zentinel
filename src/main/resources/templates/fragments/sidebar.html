@@ -18,7 +18,8 @@
 
         <div
             style="padding: 1rem 1.5rem 0.5rem; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">
-            Módulos</div>
+            Operaciones</div>
+        <!-- Productos, Entradas, Salidas: Visibles para ADMIN_EMPRESA, AUDITOR, OPERATIVO -->
         <a href="/productos" th:classappend="${#strings.startsWith(currentUri, '/productos') ? 'active' : ''}"
             class="nav-item">Productos</a>
         <a href="/entradas" th:classappend="${#strings.startsWith(currentUri, '/entradas') ? 'active' : ''}"

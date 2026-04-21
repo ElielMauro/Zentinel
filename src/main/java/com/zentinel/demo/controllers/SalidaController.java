@@ -65,6 +65,7 @@ public class SalidaController {
         return "salidas";
     }
 
+
     @GetMapping("/nueva")
     public String nuevaSalida(Model model, Principal principal, jakarta.servlet.http.HttpSession session) {
         Integer empresaId = com.zentinel.demo.security.TenantContext.getCurrentEmpresaId(session);
