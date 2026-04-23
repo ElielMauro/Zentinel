@@ -73,7 +73,6 @@ public class ClienteController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Fallo al guardar cliente: " + e.getMessage());
         }
-
         return "redirect:/clientes";
     }
 

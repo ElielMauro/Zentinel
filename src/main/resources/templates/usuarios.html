@@ -235,9 +235,11 @@
                 <div class="form-group">
                     <label>Rol</label>
                     <select th:field="*{rol}" id="rolSelect" onchange="toggleAlmacenSelector()">
-                        <option value="ADMIN_EMPRESA">Administrador Empresa</option>
+                        <option value="ADMIN_EMPRESA">Administrador Principal</option>
+                        <option value="ADMIN">Administrador Secundario</option>
                         <option value="USER">Usuario (Almacenista)</option>
-                        <option value="MOSTRADOR">Mostrador</option>
+                        <option value="MOSTRADOR">Mostrador / Ventas</option>
+                        <option value="AUDITOR">Auditoría</option>
                     </select>
                 </div>
                 <div class="form-group" id="almacenSelectorGroup">
@@ -334,8 +336,8 @@
         function toggleAlmacenSelector() {
             var rol = document.getElementById('rolSelect').value;
             var group = document.getElementById('almacenSelectorGroup');
-            // ADMIN_EMPRESA ve todos los almacenes automáticamente, no necesita seleccionar
-            if (rol === 'ADMIN_EMPRESA') {
+            // Los roles de administración ven todos los almacenes automáticamente
+            if (rol === 'ADMIN_EMPRESA' || rol === 'ADMIN') {
                 group.style.display = 'none';
             } else {
                 group.style.display = 'block';

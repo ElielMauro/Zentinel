@@ -12,10 +12,10 @@ public class Cliente {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(length = 20)
+    @Column(name = "nombre_corto", length = 20)
     private String codigo;
 
-    @Column(nullable = false, length = 150)
+    @Column(name = "nombre_completo", nullable = false, length = 150)
     private String nombre;
 
     @Column(length = 13)

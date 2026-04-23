@@ -14,17 +14,20 @@ public class DataInitializer implements CommandLineRunner {
     private final AlmacenRepository almacenRepository;
     private final AreaRepository areaRepository;
     private final UsuarioService usuarioService;
+    private final TipoClienteRepository tipoClienteRepository;
 
     public DataInitializer(UsuarioRepository usuarioRepository,
             EmpresaRepository empresaRepository,
             AlmacenRepository almacenRepository,
             AreaRepository areaRepository,
-            UsuarioService usuarioService) {
+            UsuarioService usuarioService,
+            TipoClienteRepository tipoClienteRepository) {
         this.usuarioRepository = usuarioRepository;
         this.empresaRepository = empresaRepository;
         this.almacenRepository = almacenRepository;
         this.areaRepository = areaRepository;
         this.usuarioService = usuarioService;
+        this.tipoClienteRepository = tipoClienteRepository;
     }
 
     @Override
@@ -90,6 +93,15 @@ public class DataInitializer implements CommandLineRunner {
             usuarioService.save(adminEmpresa);
 
             System.out.println("Base de datos inicializada para pruebas reales.");
+        }
+
+        // 5. Crear Tipo de Cliente por defecto si no hay ninguno
+        if (tipoClienteRepository.count() == 0) {
+            TipoCliente tc = new TipoCliente();
+            tc.setNombre("General");
+            tc.setDescripcion("Cliente estándar");
+            tc.setMargenUtilidad(new java.math.BigDecimal("0.00"));
+            tipoClienteRepository.save(tc);
         }
     }
 }
