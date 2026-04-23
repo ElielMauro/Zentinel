@@ -73,10 +73,10 @@ public class DashboardController {
         // Gastos por departamento filtrados por empresa
         List<Salida> salidas = salidaRepository.findByEmpresa_Id(empresaId);
         Map<String, BigDecimal> gastosPorDepto = salidas.stream()
-                .filter(s -> !s.getCancelado())
+                .filter(s -> s.getCancelado() != null && !s.getCancelado())
                 .collect(Collectors.groupingBy(
                         s -> s.getDepartamento() != null ? s.getDepartamento() : "Sin Depto",
-                        Collectors.reducing(BigDecimal.ZERO, Salida::getTotal, BigDecimal::add)
+                        Collectors.reducing(BigDecimal.ZERO, s -> s.getTotal() != null ? s.getTotal() : BigDecimal.ZERO, BigDecimal::add)
                 ));
 
         model.addAttribute("totalProductos", totalProductos);
@@ -84,6 +84,7 @@ public class DashboardController {
         model.addAttribute("salidasMes", salidasMes);
         model.addAttribute("lowStock", lowStock);
         model.addAttribute("gastosPorDepto", gastosPorDepto);
+        model.addAttribute("areas", areaRepository.findByEmpresa_Id(empresaId));
         model.addAttribute("currentEmpresa", sessionEmpresa);
 
         return "index";

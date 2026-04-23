@@ -9,13 +9,14 @@ import java.time.LocalDateTime;
 @Data
 public class Cliente {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "cliente_gen")
+    @SequenceGenerator(name = "cliente_gen", sequenceName = "clientes_id_seq", allocationSize = 1)
     private Integer id;
 
     @Column(name = "nombre_corto", length = 20)
     private String codigo;
 
-    @Column(name = "nombre_completo", nullable = false, length = 150)
+    @Column(nullable = false, length = 150)
     private String nombre;
 
     @Column(length = 13)

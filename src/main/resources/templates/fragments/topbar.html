@@ -4,13 +4,11 @@
 <body>
     <div th:fragment="topbar(title, description)" class="header">
         <!-- Bloque de Mensajes / Alertas Globales -->
-        <div th:if="${mensaje or error}" style="width: 100%; margin-bottom: 1rem;">
-            <div th:if="${mensaje}" style="padding: 1rem; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: #10B981; border-radius: 12px; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                <span>✅</span> <span th:text="${mensaje}"></span>
-            </div>
-            <div th:if="${error}" style="padding: 1rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #EF4444; border-radius: 12px; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                <span>⚠️</span> <span th:text="${error}"></span>
-            </div>
+        <div th:if="${mensaje != null}" style="padding: 1rem; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: #10B981; border-radius: 12px; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; width: 100%;">
+            <span>✅</span> <span th:text="${mensaje}"></span>
+        </div>
+        <div th:if="${error != null}" style="padding: 1rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #EF4444; border-radius: 12px; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; width: 100%;">
+            <span>⚠️</span> <span th:text="${error}"></span>
         </div>
         <div>
             <h1 th:text="${title}">Título</h1>

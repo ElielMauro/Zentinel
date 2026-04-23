@@ -50,14 +50,14 @@
                         <td th:text="${s.nombreSolicitante != null ? s.nombreSolicitante : 'N/A'}"></td>
                         <td th:text="${s.total != null ? '$' + s.total : '$0.00'}"></td>
                         <td>
-                            <span th:class="${'badge ' + (s.cancelado ? 'badge-danger' : (s.facturado ? 'badge-primary' : 'badge-success'))}"
-                                th:text="${s.cancelado ? 'Cancelado' : (s.facturado ? 'Facturado' : s.estatus)}"></span>
+                            <span th:class="${'badge ' + (s.cancelado != null and s.cancelado ? 'badge-danger' : (s.facturado != null and s.facturado ? 'badge-primary' : 'badge-success'))}"
+                                th:text="${s.cancelado != null and s.cancelado ? 'Cancelado' : (s.facturado != null and s.facturado ? 'Facturado' : s.estatus)}"></span>
                         </td>
                         <td style="display: flex; gap: 0.5rem;">
                             <a th:href="@{/salidas/detalle/{f}(f=${s.folio})}" class="btn-icon" title="Ver Detalle">👁️</a>
                             <a th:href="@{/salidas/reporte/{f}(f=${s.folio})}" class="btn-icon" title="Imprimir">🖨️</a>
                             <a sec:authorize="hasAnyRole('SUPER_ADMIN','ADMIN_EMPRESA','ADMIN')"
-                               th:if="${!s.facturado}"
+                               th:if="${s.facturado == null or !s.facturado}"
                                th:href="@{/salidas/editar/{f}(f=${s.folio})}" class="btn-icon" title="Editar">✏️</a>
                         </td>
                     </tr>

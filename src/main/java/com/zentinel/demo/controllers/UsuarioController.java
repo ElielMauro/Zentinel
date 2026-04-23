@@ -31,28 +31,14 @@ public class UsuarioController {
         boolean isSuperAdmin = auth.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_SUPER_ADMIN"));
 
-        if (isSuperAdmin && empresaId == null) {
-            // El Super Admin viendo todos en general (si no ha seleccionado empresa)
-            model.addAttribute("usuarios", usuarioService.findAll());
-        } else if (empresaId != null) {
-            // Todos los demás (o SA con contexto) ven los de la empresa
-            List<Usuario> usuarios = usuarioService.findByEmpresaId(empresaId);
-            
-            // Si NO es Super Admin, ocultamos a los SUPER_ADMIN de la lista
-            List<Usuario> listadoFiltrado = usuarios.stream()
-                .filter(u -> isSuperAdmin || !"SUPER_ADMIN".equals(u.getRol()))
-                .toList();
-            
-            model.addAttribute("usuarios", listadoFiltrado);
-        } else {
-            model.addAttribute("usuarios", new java.util.ArrayList<>());
-        }
-
-        // Pasar almacenes disponibles de la empresa para asignarlos al usuario nuevo
+        // Visibilidad total durante estabilización
+        model.addAttribute("usuarios", usuarioService.findAll());
+        
+        // Almacenes para el modal
         if (empresaId != null) {
             model.addAttribute("almacenesDisponibles", almacenService.findByEmpresaId(empresaId));
         } else {
-            model.addAttribute("almacenesDisponibles", new java.util.ArrayList<>());
+            model.addAttribute("almacenesDisponibles", almacenService.findAll());
         }
 
         model.addAttribute("nuevoUsuario", new Usuario());

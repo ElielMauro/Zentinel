@@ -26,10 +26,10 @@ public class AlmacenService {
     public List<Almacen> findByUser(Usuario usuario) {
         if (usuario == null)
             return new ArrayList<>();
-        if ("SUPER_ADMIN".equals(usuario.getRol()) || "ADMIN".equals(usuario.getRol())) {
+        if ("SUPER_ADMIN".equals(usuario.getRol())) {
             return findAll();
         }
-        if ("ADMIN_EMPRESA".equals(usuario.getRol()) && usuario.getEmpresa() != null) {
+        if (("ADMIN_EMPRESA".equals(usuario.getRol()) || "ADMIN".equals(usuario.getRol())) && usuario.getEmpresa() != null) {
             return findByEmpresaId(usuario.getEmpresa().getId());
         }
         return new ArrayList<>(usuario.getAlmacenes());

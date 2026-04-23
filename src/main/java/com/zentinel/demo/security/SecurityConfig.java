@@ -38,7 +38,7 @@ public class SecurityConfig {
                         .hasAnyRole("SUPER_ADMIN", "ADMIN_EMPRESA", "AUDITOR", "OPERATIVO", "MOSTRADOR", "ADMIN")
                         // Movimientos y Reportes
                         .requestMatchers("/entradas/**", "/salidas/**", "/reportes/**")
-                        .hasAnyRole("ADMIN_EMPRESA", "OPERATIVO", "AUDITOR", "MOSTRADOR", "ADMIN")
+                        .hasAnyRole("ADMIN_EMPRESA", "OPERATIVO", "AUDITOR", "MOSTRADOR", "ADMIN", "SUPER_ADMIN")
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")

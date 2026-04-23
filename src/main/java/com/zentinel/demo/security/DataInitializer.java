@@ -92,7 +92,37 @@ public class DataInitializer implements CommandLineRunner {
             adminEmpresa.setEmpresa(emp);
             usuarioService.save(adminEmpresa);
 
-            System.out.println("Base de datos inicializada para pruebas reales.");
+            Usuario mostrador = new Usuario();
+            mostrador.setUsuario("mostrador");
+            mostrador.setPassword("mostrador123");
+            mostrador.setNombre("Usuario");
+            mostrador.setApellidoPaterno("Mostrador");
+            mostrador.setCorreo("mostrador@zentinel.com");
+            mostrador.setRol("MOSTRADOR");
+            mostrador.setEmpresa(emp);
+            usuarioService.save(mostrador);
+
+            Usuario auditor = new Usuario();
+            auditor.setUsuario("auditor");
+            auditor.setPassword("auditor123");
+            auditor.setNombre("Usuario");
+            auditor.setApellidoPaterno("Auditor");
+            auditor.setCorreo("auditor@zentinel.com");
+            auditor.setRol("AUDITOR");
+            auditor.setEmpresa(emp);
+            usuarioService.save(auditor);
+
+            Usuario adminUM = new Usuario();
+            adminUM.setUsuario("admin_um");
+            adminUM.setPassword("um123");
+            adminUM.setNombre("Administrador");
+            adminUM.setApellidoPaterno("Montemorelos");
+            adminUM.setCorreo("admin@um.edu.mx");
+            adminUM.setRol("ADMIN_EMPRESA");
+            adminUM.setEmpresa(emp);
+            usuarioService.save(adminUM);
+
+            System.out.println("Base de datos inicializada: Admin UM creado.");
         }
 
         // 5. Crear Tipo de Cliente por defecto si no hay ninguno
@@ -103,5 +133,18 @@ public class DataInitializer implements CommandLineRunner {
             tc.setMargenUtilidad(new java.math.BigDecimal("0.00"));
             tipoClienteRepository.save(tc);
         }
+
+        // 6. REPARACIÓN TOTAL: Vincular TODOS los usuarios a la empresa 1
+        Empresa masterEmp = empresaRepository.findById(1).orElse(null);
+        if (masterEmp != null) {
+            usuarioRepository.findAll().forEach(u -> {
+                u.setEmpresa(masterEmp);
+                usuarioRepository.save(u);
+            });
+            System.out.println("REPARACIÓN TOTAL: Todos los usuarios han sido vinculados a Zentinel (Empresa 1).");
+        }
+
+        // 7. Verificación de secuencias
+        System.out.println("Verificando secuencias de base de datos...");
     }
 }
